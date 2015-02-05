@@ -14,7 +14,7 @@ Pull in the package via Composer.
 
 ```js
 "require": {
-    "shpasser/gae-support-l5": "dev-master"
+    "shpasser/gae-support-l5": "~1.0"
 }
 ```
 
