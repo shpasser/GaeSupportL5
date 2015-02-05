@@ -1,6 +1,5 @@
 <?php namespace Shpasser\GaeSupportL5\Setup;
 
-use ReflectionClass;
 use ZipArchive;
 
 /**
@@ -44,14 +43,13 @@ class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
 
         // Call the configure() function on the 'testee'
         // to generate/modify the files.
-        $fakeCommand = new FakeCommand();
-        $this->testee = new Configurator($fakeCommand);
+        $configurator = new Configurator(new FakeCommand);
 
         $appId = 'laravel-app-gae-id';
         $generateConfig = true;
         $bucketId = null;
 
-        $this->testee->configure($appId, $generateConfig, $bucketId);
+        $configurator->configure($appId, $generateConfig, $bucketId);
     }
 
     /**
