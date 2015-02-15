@@ -112,6 +112,7 @@ class Application extends IlluminateApplication {
 
                 if ( ! file_exists($this->gaeBucketPath)) {
                     mkdir($this->gaeBucketPath);
+                    mkdir($this->gaeBucketPath.'/app');
                     mkdir($this->gaeBucketPath.'/framework');
                     mkdir($this->gaeBucketPath.'/framework/views');
                 }

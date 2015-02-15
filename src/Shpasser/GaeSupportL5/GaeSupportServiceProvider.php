@@ -2,6 +2,8 @@
 
 use Illuminate\Support\ServiceProvider;
 use Shpasser\GaeSupportL5\Setup\SetupCommand;
+use Shpasser\GaeSupportL5\Filesystem\GaeAdapter as GaeFileSystemAdapter;
+use Storage;
 
 class GaeSupportServiceProvider extends ServiceProvider {
 
@@ -11,6 +13,19 @@ class GaeSupportServiceProvider extends ServiceProvider {
 	 * @var bool
 	 */
 	protected $defer = false;
+
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Storage::extend('gae', function($app)
+        {
+            return Storage::repository(new GaeFilesystemAdapter);
+        });
+    }
 
 	/**
 	 * Register the service provider.
