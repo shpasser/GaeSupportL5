@@ -1,7 +1,9 @@
 <?php namespace Shpasser\GaeSupportL5\Foundation;
 
 use Illuminate\Foundation\Application as IlluminateApplication;
-use Illuminate\Http\Request;
+use Symfony\Component\VarDumper\Dumper\HtmlDumper;
+use Symfony\Component\VarDumper\Dumper\CliDumper;
+
 
 class Application extends IlluminateApplication {
 
@@ -38,23 +40,24 @@ class Application extends IlluminateApplication {
      */
     public function __construct($basePath = null)
     {
-        require_once(__DIR__ . '/gae_realpath.php');
         $this->gaeBucketPath = null;
+
+        // Load the 'realpath()' function replacement
+        // for GAE storage buckets.
+        require_once(__DIR__ . '/gae_realpath.php');
+
         $this->detectGae();
+
+        if ($this->isRunningOnGae())
+        {
+            $this->replaceDefaultSymfonyLineDumpers();
+        }
+
         parent::__construct($basePath);
     }
 
     /**
      * Detect if the application is running on GAE.
-     *
-     * If we run on GAE then 'realpath()' function replacement
-     * 'gae_realpath()' is declared, so it won't fail with GAE
-     * bucket paths.
-     *
-     * In order for 'gae_realpath()' function to be called the code has
-     * to be patched to use 'gae_realpath()' instead of 'realpath()'
-     * using the command 'php artisan gae:deploy --config you@gmail.com'
-     * from the terminal.
      */
     protected function detectGae()
     {
@@ -68,6 +71,28 @@ class Application extends IlluminateApplication {
         $AppIdentityService = self::GAE_ID_SERVICE;
         $this->appId = $AppIdentityService::getApplicationId();
         $this->runningOnGae = ! preg_match('/dev~/', getenv('APPLICATION_ID'));
+    }
+
+    /**
+     * Replaces the default output stream of Symfony's
+     * CliDumper and HtmlDumper classes in order to
+     * be able to run on Google App Engine.
+     *
+     * 'php://stdout' is used by CliDumper,
+     * 'php://output' is used by HtmlDumper,
+     * both are not supported on GAE.
+     */
+    protected function replaceDefaultSymfonyLineDumpers()
+    {
+        HtmlDumper::$defaultOutput =
+        CliDumper::$defaultOutput =
+            function($line, $depth, $indentPad)
+            {
+                if (-1 !== $depth)
+                {
+                    echo str_repeat($indentPad, $depth).$line."\n";
+                }
+            };
     }
 
     /**

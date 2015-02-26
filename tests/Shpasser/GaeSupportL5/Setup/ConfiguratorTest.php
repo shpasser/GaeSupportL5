@@ -48,8 +48,11 @@ class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
         $appId = 'laravel-app-gae-id';
         $generateConfig = true;
         $bucketId = null;
+        $dbSocket = '/cloudsql/test-app:test-cloud-sql';
+        $dbName   = 'gae_test_db';
+        $dbHost   = 'XXX.XXX.XXX.XXX';
 
-        $configurator->configure($appId, $generateConfig, $bucketId);
+        $configurator->configure($appId, $generateConfig, $bucketId, $dbSocket, $dbName, $dbHost);
     }
 
     /**
@@ -60,11 +63,18 @@ class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
         self::delTree(__DIR__.'/playground');
     }
 
-    public function testEnvGeneration()
+    public function testEnvProductionGeneration()
     {
         $env_production = __DIR__.'/playground/.env.production';
         $expected       = __DIR__.'/playground/.env.production_expected_result';
         $this->assertFileEquals($env_production, $expected);
+    }
+
+    public function testEnvLocalGeneration()
+    {
+        $env_local = __DIR__.'/playground/.env.local';
+        $expected  = __DIR__.'/playground/.env.local_expected_result';
+        $this->assertFileEquals($env_local, $expected);
     }
 
     public function testBootstrapAppModification()

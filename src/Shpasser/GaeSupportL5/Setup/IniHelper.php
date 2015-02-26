@@ -28,11 +28,6 @@ class IniHelper implements \ArrayAccess {
     }
 
     /**
-     *
-     *
-     */
-
-    /**
      * Writes the configuration data back to the INI file.
      *
      * @param string $file If not empty will be used as an
@@ -63,7 +58,7 @@ class IniHelper implements \ArrayAccess {
             }
             else
             {
-                $iniString .= "{$key} = {$value}".PHP_EOL;
+                $iniString .= "{$key}={$value}".PHP_EOL;
             }
         }
 

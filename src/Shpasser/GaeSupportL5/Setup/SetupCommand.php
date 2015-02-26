@@ -35,11 +35,25 @@ class SetupCommand extends Command {
 	 */
 	public function fire()
 	{
+        $dbSocket = $this->option('db-socket');
+        $dbHost   = $this->option('db-host');
+        $dbName   = $this->option('db-name');
+
+        if ( ! is_null($dbName) && (is_null($dbSocket) || is_null($dbHost)))
+        {
+            $this->error("Option '--db-name' requires at least one of: '--db-socket' OR '--db-host' to be defined.");
+            return;
+        }
+
 		$configurator = new Configurator($this);
 		$configurator->configure(
 			$this->argument('app-id'),
 			$this->option('config'),
-			$this->option('bucket'));
+			$this->option('bucket'),
+            $this->option('db-socket'),
+            $this->option('db-name'),
+            $this->option('db-host')
+        );
 	}
 
 	/**
@@ -62,8 +76,16 @@ class SetupCommand extends Command {
 	protected function getOptions()
 	{
 		return array(
-			array('config', null, InputOption::VALUE_NONE, 'Generate "app.yaml" and "php.ini" config files.', null),
-			array('bucket', null, InputOption::VALUE_REQUIRED, 'Use the specified gs-bucket instead of the default one.', null),
+			array('config', null, InputOption::VALUE_NONE,
+                  'Generate "app.yaml" and "php.ini" config files.', null),
+			array('bucket', null, InputOption::VALUE_REQUIRED,
+                  'Use the specified gs-bucket instead of the default one.', null),
+            array('db-socket', null, InputOption::VALUE_REQUIRED,
+                  'Cloud SQL socket connection string for production environment.', null),
+            array('db-name', null, InputOption::VALUE_REQUIRED,
+                  'Cloud SQL database name.', null),
+            array('db-host', null, InputOption::VALUE_REQUIRED,
+                  'Cloud SQL database host IPv4 address for local environment.', null),
 		);
 	}
 

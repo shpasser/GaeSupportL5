@@ -29,18 +29,25 @@ class Configurator {
      * @param string $appId the GAE application ID.
      * @param bool $generateConfig if 'true' => generate GAE config files(app.yaml and php.ini).
      * @param string $bucketId the custom GCS bucket ID, if 'null' the default bucket is used.
+     * @param string $dbSocket Cloud SQL socket connection string.
+     * @param string $dbName Cloud SQL database name.
+     * @param string $dbHost Cloud SQL host IPv4 address.
      */
-    public function configure($appId, $generateConfig, $bucketId)
+    public function configure($appId, $generateConfig, $bucketId,
+                              $dbSocket, $dbName, $dbHost)
     {
         $env_file            = app_path().'/../.env';
         $env_production_file = app_path().'/../.env.production';
+        $env_local_file      = app_path().'/../.env.local';
         $bootstrap_app_php   = app_path().'/../bootstrap/app.php';
         $config_app_php      = app_path().'/../config/app.php';
         $config_view_php     = app_path().'/../config/view.php';
         $config_mail_php     = app_path().'/../config/mail.php';
         $config_queue_php    = app_path().'/../config/queue.php';
+        $config_databse_php  = app_path().'/../config/database.php';
 
-        $this->createEnvProductionFile($env_file, $env_production_file);
+        $this->createEnvProductionFile($env_file, $env_production_file, $dbSocket, $dbName);
+        $this->createEnvLocalFile($env_file, $env_local_file, $dbHost, $dbName);
         $this->processFile($bootstrap_app_php, ['replaceAppClass']);
         $this->processFile($config_app_php, [
             'replaceLaravelServiceProviders',
@@ -49,6 +56,7 @@ class Configurator {
         $this->processFile($config_view_php, ['replaceRealpathFunction']);
         $this->processFile($config_mail_php, ['setMailDriver']);
         $this->processFile($config_queue_php, ['addQueueConfig']);
+        $this->processFile($config_databse_php, ['addCloudSqlConfig']);
 
         if ($generateConfig)
         {
@@ -66,8 +74,10 @@ class Configurator {
      *
      * @param string $env_file The '.env' file path.
      * @param string $env_production_file The '.env.production' file path.
+     * @param string $dbSocket Cloud SQL socket connection string.
+     * @param string $dbName Cloud SQL database name.
      */
-    protected function createEnvProductionFile($env_file, $env_production_file)
+    protected function createEnvProductionFile($env_file, $env_production_file, $dbSocket, $dbName)
     {
         if (!file_exists($env_file))
         {
@@ -100,9 +110,70 @@ class Configurator {
         $env['QUEUE_DRIVER'] = 'gae';
         $env['LOG_HANDLER']  = 'syslog';
 
+        if (( ! is_null($dbSocket)) && ( ! is_null($dbName)))
+        {
+            $env['CLOUD_SQL_SOCKET']    = $dbSocket;
+            $env['CLOUD_SQL_HOST']      = '';
+            $env['CLOUD_SQL_DATABASE']  = $dbName;
+            $env['CLOUD_SQL_USERNAME']  = 'root';
+            $env['CLOUD_SQL_PASSWORD']  = '';
+        }
+
         $env->write($env_production_file);
 
         $this->myCommand->info('Created the ".env.production" file.');
+    }
+
+
+    /**
+     * Creates a '.env.production' file based on the existing '.env' file.
+     *
+     * @param string $env_file The '.env' file path.
+     * @param string $env_local_file The '.env.local' file path.
+     * @param string $dbHost Cloud SQL host IPv4 address.
+     * @param string $dbName Cloud SQL database name.
+     */
+    protected function createEnvLocalFile($env_file, $env_local_file, $dbHost, $dbName)
+    {
+        if (!file_exists($env_file))
+        {
+            $this->myCommand->error('Cannot find ".env" file to import the existing options.');
+            return;
+        }
+
+        if (file_exists($env_local_file))
+        {
+            $overwrite = $this->myCommand->confirm(
+                'Overwrite the existing ".env.local" file?', false
+            );
+
+            if ( ! $overwrite)
+            {
+                return;
+            }
+        }
+
+        $env = new IniHelper;
+        $env->read($env_file);
+
+        $env['APP_ENV']   = 'local';
+        $env['APP_DEBUG'] = 'true';
+
+        $env['CACHE_DRIVER']   = 'file';
+        $env['SESSION_DRIVER'] = 'file';
+
+        if (( ! is_null($dbHost)) && ( ! is_null($dbName)))
+        {
+            $env['CLOUD_SQL_SOCKET']    = '';
+            $env['CLOUD_SQL_HOST']      = $dbHost;
+            $env['CLOUD_SQL_DATABASE']  = $dbName;
+            $env['CLOUD_SQL_USERNAME']  = 'root';
+            $env['CLOUD_SQL_PASSWORD']  = 'password';
+        }
+
+        $env->write($env_local_file);
+
+        $this->myCommand->info('Created the ".env.local" file.');
     }
 
     /**
@@ -305,6 +376,43 @@ EOT;
         return $modified;
     }
 
+
+    protected function addCloudSqlConfig($contents)
+    {
+        if (str_contains($contents, "'cloudsql'"))
+        {
+            return $contents;
+        }
+
+        $expression = "/'connections'\s*=>\s*\[/";
+
+        $replacement =
+<<<EOT
+'connections' => [
+
+    'cloudsql' => [
+        'driver'      => 'mysql',
+        'unix_socket' => env('CLOUD_SQL_SOCKET')
+        'host'        => env('CLOUD_SQL_HOST'),
+        'database'    => env('CLOUD_SQL_DATABASE'),
+        'username'    => env('CLOUD_SQL_USERNAME'),
+        'password'    => env('CLOUD_SQL_PASSWORD'),
+        'charset'     => 'utf8',
+        'collation'   => 'utf8_unicode_ci',
+        'prefix'      => '',
+        'strict'      => false,
+    ],
+EOT;
+
+        $modified = preg_replace($expression, $replacement, $contents);
+
+        if ($contents !== $modified)
+        {
+            $this->myCommand->info('Added Cloud SQL driver configuration in "config/database.php".');
+        }
+
+        return $modified;
+    }
 
     /**
      * Generates a "app.yaml" file for a GAE app.
