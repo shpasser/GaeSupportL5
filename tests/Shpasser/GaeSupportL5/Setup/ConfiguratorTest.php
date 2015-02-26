@@ -112,6 +112,13 @@ class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
         $this->assertFileEquals($config_queue_php, $expected);
     }
 
+    public function testConfigDatabaseModification()
+    {
+        $config_queue_php = __DIR__.'/playground/config/database.php';
+        $expected         = __DIR__.'/playground/config/database.php_expected_result';
+        $this->assertFileEquals($config_queue_php, $expected);
+    }
+
     public function testGenerateAppYaml()
     {
         $app_yaml   = __DIR__.'/playground/app.yaml';

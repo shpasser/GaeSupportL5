@@ -112,6 +112,7 @@ class Configurator {
 
         if (( ! is_null($dbSocket)) && ( ! is_null($dbName)))
         {
+            $env['DB_CONNECTION']       = 'cloudsql';
             $env['CLOUD_SQL_SOCKET']    = $dbSocket;
             $env['CLOUD_SQL_HOST']      = '';
             $env['CLOUD_SQL_DATABASE']  = $dbName;
@@ -164,6 +165,7 @@ class Configurator {
 
         if (( ! is_null($dbHost)) && ( ! is_null($dbName)))
         {
+            $env['DB_CONNECTION']       = 'cloudsql';
             $env['CLOUD_SQL_SOCKET']    = '';
             $env['CLOUD_SQL_HOST']      = $dbHost;
             $env['CLOUD_SQL_DATABASE']  = $dbName;
@@ -384,27 +386,32 @@ EOT;
             return $contents;
         }
 
-        $expression = "/'connections'\s*=>\s*\[/";
+        $expressions = [
+            "/'default'.*=>[^env\(]*'\b.+\b'/",
+            "/'connections'\s*=>\s*\[/"
+        ];
 
-        $replacement =
+        $replacements = [
+            "'default' => env('DB_CONNECTION', 'mysql')",
 <<<EOT
 'connections' => [
 
-    'cloudsql' => [
-        'driver'      => 'mysql',
-        'unix_socket' => env('CLOUD_SQL_SOCKET')
-        'host'        => env('CLOUD_SQL_HOST'),
-        'database'    => env('CLOUD_SQL_DATABASE'),
-        'username'    => env('CLOUD_SQL_USERNAME'),
-        'password'    => env('CLOUD_SQL_PASSWORD'),
-        'charset'     => 'utf8',
-        'collation'   => 'utf8_unicode_ci',
-        'prefix'      => '',
-        'strict'      => false,
-    ],
-EOT;
+        'cloudsql' => [
+            'driver'      => 'mysql',
+            'unix_socket' => env('CLOUD_SQL_SOCKET'),
+            'host'        => env('CLOUD_SQL_HOST'),
+            'database'    => env('CLOUD_SQL_DATABASE'),
+            'username'    => env('CLOUD_SQL_USERNAME'),
+            'password'    => env('CLOUD_SQL_PASSWORD'),
+            'charset'     => 'utf8',
+            'collation'   => 'utf8_unicode_ci',
+            'prefix'      => '',
+            'strict'      => false,
+        ],
+EOT
+        ];
 
-        $modified = preg_replace($expression, $replacement, $contents);
+        $modified = preg_replace($expressions, $replacements, $contents);
 
         if ($contents !== $modified)
         {

@@ -108,16 +108,19 @@ and can be found in `.env.production` configuration file.
 
 ### Database
 
-Google Cloud SQL is supported via Laravel's MySql driver. The connection parameters can be configured
-using `--db-socket`, `--db-name` and `--db-host` options via the artisan command. The command sets
-the database related environment variables in `.env.production` and `.env.local` files. In order
-to use either the `production` or the `local` environment rename the appropriate file to `.env`.
+Google Cloud SQL is supported via Laravel's MySql driver. The connection configuration is added by 
+the artisan command to `config/database.php` under `cloudsql`. The connection parameters can be 
+configured using `--db-socket`, `--db-name` and `--db-host` options via the artisan command.
+
+The database related environment variables are set in `.env.production` and `.env.local` files.
 
 The `production` environment is configured to use the socket connection while the `local` configured
 to connect via the IPv4 address of the Google Cloud SQL instance. Use Google Developers Console in
 order to obtain the socket connection string and enable the IPv4 address of your database instance.  
 
 The migrations are supported while working in `local` environment only.   
+
+To use either the `production` or the `local` environment rename the appropriate file to `.env`.
 
 ## Deploy
 
