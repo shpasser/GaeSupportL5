@@ -387,7 +387,7 @@ EOT;
         }
 
         $expressions = [
-            "/'default'.*=>[^env\(]*'\b.+\b'/",
+            "/'default'.*=>\s*'\b.+\b'/",
             "/'connections'\s*=>\s*\[/"
         ];
 
