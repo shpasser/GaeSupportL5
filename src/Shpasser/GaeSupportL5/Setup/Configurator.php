@@ -44,7 +44,7 @@ class Configurator {
         $config_view_php     = app_path().'/../config/view.php';
         $config_mail_php     = app_path().'/../config/mail.php';
         $config_queue_php    = app_path().'/../config/queue.php';
-        $config_databse_php  = app_path().'/../config/database.php';
+        $config_database_php = app_path().'/../config/database.php';
 
         $this->createEnvProductionFile($env_file, $env_production_file, $dbSocket, $dbName);
         $this->createEnvLocalFile($env_file, $env_local_file, $dbHost, $dbName);
@@ -56,7 +56,7 @@ class Configurator {
         $this->processFile($config_view_php, ['replaceRealpathFunction']);
         $this->processFile($config_mail_php, ['setMailDriver']);
         $this->processFile($config_queue_php, ['addQueueConfig']);
-        $this->processFile($config_databse_php, ['addCloudSqlConfig']);
+        $this->processFile($config_database_php, ['addCloudSqlConfig']);
 
         if ($generateConfig)
         {
