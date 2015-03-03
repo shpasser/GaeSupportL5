@@ -39,7 +39,7 @@ class SetupCommand extends Command {
         $dbHost   = $this->option('db-host');
         $dbName   = $this->option('db-name');
 
-        if ( ! is_null($dbName) && (is_null($dbSocket) || is_null($dbHost)))
+        if ( ! is_null($dbName) && (is_null($dbSocket) && is_null($dbHost)))
         {
             $this->error("Option '--db-name' requires at least one of: '--db-socket' OR '--db-host' to be defined.");
             return;
