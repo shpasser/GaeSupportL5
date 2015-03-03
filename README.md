@@ -31,7 +31,7 @@ Then include the service provider within `config/app.php`.
 Generate the GAE related files / entries.
 
 ```bash
-php artisan gae:setup --config --bucket="your-bucket-id" -db-socket="cloud-sql-instance-socket-connection-string" --db-name="cloud-sql-database-name" --db-host="cloud-sql-instance-ipv4-address" your-app-id
+php artisan gae:setup --config --bucket="your-bucket-id" --db-socket="cloud-sql-instance-socket-connection-string" --db-name="cloud-sql-database-name" --db-host="cloud-sql-instance-ipv4-address" your-app-id
 ```
 
 The default GCS bucket is configured unless a custom bucket id is defined using
