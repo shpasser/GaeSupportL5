@@ -34,7 +34,7 @@ class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        require_once __DIR__.'/appFunction.php';
+        require_once __DIR__.'/FakeHelpers.php';
 
         // Prepare the playground.
         $zip = new ZipArchive();

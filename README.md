@@ -122,6 +122,47 @@ The migrations are supported while working in `local` environment only.
 
 To use either the `production` or the `local` environment rename the appropriate file to `.env`.
 
+### Optimizations
+
+The optimizations allow the application to reduce the use of GCS, which is the only read-write
+storage available on GAE platform as of now.
+
+In order to optimize view compilation the included 'cachefs' filesystem can be used to store
+compiled views using 'memcached' service. 'cachefs' does not provide the application with a
+reliable storage solution, information stored using 'memcached' is managed according to
+'memcached' rules and may be deleted when 'memcached' decides to. Since the views can
+be compiled again without any information loss it is appropriate to store compiled
+views using 'cachefs'. 
+
+'cachefs' has the following structure:
+
+/
++-- framework
+    +-- views 
+
+'/framework/views' is used to store the compiled views.
+
+Use the following option to enable the feature in `.env` file:
+```php
+COMPILED_PATH = cachefs://framework/views
+```
+
+'/framework' is used to store the `services.json`, `config.php` and `routes.php` files,
+in order to control caching of these files use the following options in `.env` file:
+```php
+GAE_CACHE_SERVICES_FILE = true
+GAE_CACHE_CONFIG_FILE = true
+GAE_CACHE_ROUTES_FILE = true
+```
+
+In order to use `config.php` and `routes.php` files they have to be generated using
+`php artisan config:cache` and `php artisan routes:cache` commands.
+
+Additionally the initialization of GSC bucket can be skipped to boost the performance: 
+```php
+GAE_SKIP_GCS_INIT = true
+```
+
 ## Deploy
 
 Backup the existing `.env` file if needed and rename the generated `.env.production` to `.env`

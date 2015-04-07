@@ -36,15 +36,17 @@ class Configurator {
     public function configure($appId, $generateConfig, $bucketId,
                               $dbSocket, $dbName, $dbHost)
     {
-        $env_file            = app_path().'/../.env';
-        $env_production_file = app_path().'/../.env.production';
-        $env_local_file      = app_path().'/../.env.local';
-        $bootstrap_app_php   = app_path().'/../bootstrap/app.php';
-        $config_app_php      = app_path().'/../config/app.php';
-        $config_view_php     = app_path().'/../config/view.php';
-        $config_mail_php     = app_path().'/../config/mail.php';
-        $config_queue_php    = app_path().'/../config/queue.php';
-        $config_database_php = app_path().'/../config/database.php';
+        $env_file               = app_path().'/../.env';
+        $env_production_file    = app_path().'/../.env.production';
+        $env_local_file         = app_path().'/../.env.local';
+        $bootstrap_app_php      = app_path().'/../bootstrap/app.php';
+        $config_app_php         = app_path().'/../config/app.php';
+        $config_view_php        = app_path().'/../config/view.php';
+        $config_mail_php        = app_path().'/../config/mail.php';
+        $config_queue_php       = app_path().'/../config/queue.php';
+        $config_database_php    = app_path().'/../config/database.php';
+        $config_filesystems_php = app_path().'/../config/filesystems.php';
+        $cached_config_php      = storage_path().'/framework/config.php';
 
         $this->createEnvProductionFile($env_file, $env_production_file, $dbSocket, $dbName);
         $this->createEnvLocalFile($env_file, $env_local_file, $dbHost, $dbName);
@@ -53,10 +55,12 @@ class Configurator {
             'replaceLaravelServiceProviders',
             'setLogHandler'
         ]);
-        $this->processFile($config_view_php, ['replaceRealpathFunction']);
+        $this->processFile($config_view_php, ['replaceCompiledPath']);
         $this->processFile($config_mail_php, ['setMailDriver']);
         $this->processFile($config_queue_php, ['addQueueConfig']);
         $this->processFile($config_database_php, ['addCloudSqlConfig']);
+        $this->processFile($config_filesystems_php, ['addGaeDisk']);
+        $this->processFile($cached_config_php, ['fixCachedConfig']);
 
         if ($generateConfig)
         {
@@ -109,6 +113,7 @@ class Configurator {
         $env['MAIL_DRIVER']  = 'gae';
         $env['QUEUE_DRIVER'] = 'gae';
         $env['LOG_HANDLER']  = 'syslog';
+        $env['FILESYSTEM'] = 'gae';
 
         if (( ! is_null($dbSocket)) && ( ! is_null($dbName)))
         {
@@ -297,22 +302,23 @@ class Configurator {
     }
 
     /**
-     * Processor function. Replaces a realpath() function call
-     * with call to a GAE storage bucket compatible gae_realpath() call.
+     * Processor function. Replaces 'compiled' path with GAE
+     * compatible one when running on GAE.
      *
      * @param string $contents the 'config/view.php' file contents.
      * @return string the modified file contents.
      */
-    protected function replaceRealpathFunction($contents)
+    protected function replaceCompiledPath($contents)
     {
         $modified = preg_replace(
-            '/\brealpath\s*\(\s*storage_path/',
-            'gae_realpath(storage_path',
-            $contents);
+            "/'compiled'\s*=>.*$/m",
+            "'compiled' => env('COMPILED_PATH', storage_path().'/framework/views'),",
+            $contents
+        );
 
         if ($contents !== $modified)
         {
-            $this->myCommand->info('Replaced the realpath() function call in "config/view.php".');
+            $this->myCommand->info('Replaced the \'compiled\' path in "config/view.php".');
         }
 
         return $modified;
@@ -379,6 +385,13 @@ EOT;
     }
 
 
+    /**
+     * Adds the Cloud SQL configuration to the 'config/database.php'
+     * if it does not already exist.
+     *
+     * @param string $contents the 'config/database.php' file contents.
+     * @return string the modified file contents.
+     */
     protected function addCloudSqlConfig($contents)
     {
         if (str_contains($contents, "'cloudsql'"))
@@ -416,6 +429,82 @@ EOT
         if ($contents !== $modified)
         {
             $this->myCommand->info('Added Cloud SQL driver configuration in "config/database.php".');
+        }
+
+        return $modified;
+    }
+
+    /**
+     * Adds the GAE disk configuration to the 'config/filesystem.php'
+     * if it does not already exist.
+     *
+     * @param string $contents the 'config/filesystem.php' file contents.
+     * @return string the modified file contents.
+     */
+    protected function addGaeDisk($contents)
+    {
+        if (str_contains($contents, "'gae'"))
+        {
+            return $contents;
+        }
+
+        $expressions = [
+            "/'default'.*=>\s*'\b.+\b'/",
+            "/'disks'\s*=>\s*\[/"
+        ];
+
+        $replacements = [
+            "'default' => env('FILESYSTEM', 'local')",
+<<<EOT
+            'disks' => [
+
+		'gae' => [
+			'driver' => 'gae',
+			'root'   => storage_path().'/app',
+		],
+EOT
+        ];
+
+        $modified = preg_replace($expressions, $replacements, $contents);
+
+        if ($contents !== $modified)
+        {
+            $this->myCommand->info('Added GAE filesystem driver configuration in "config/filesystems.php".');
+        }
+
+        return $modified;
+    }
+
+    /**
+     * Fixes the paths in the cached config file.
+     *
+     * @param string $contents the 'storage/framework/config.php' file contents.
+     * @return string the modified file contents.
+     */
+    protected function fixCachedConfig($contents)
+    {
+        $app_path = app_path();
+        $storage_path = storage_path();
+        $base_path = base_path();
+
+        $expressions = [
+            "!'${app_path}!",
+            "!'${storage_path}!",
+            "!'${base_path}!"
+        ];
+
+        $replacements = [
+            "app_path().'",
+            "storage_path().'",
+            "base_path().'"
+		];
+
+        $modified = preg_replace($expressions, $replacements, $contents);
+
+        if ($contents !== $modified)
+        {
+            $this->myCommand->info('Fixed "storage/framework/config.php" for GAE deployment.');
+            $this->myCommand->comment('* To use "storage/framework/config.php" locally please regenerate it.');
         }
 
         return $modified;

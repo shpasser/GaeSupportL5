@@ -1,6 +1,9 @@
 <?php namespace Shpasser\GaeSupportL5\Foundation;
 
 use Illuminate\Foundation\Application as IlluminateApplication;
+use Illuminate\Foundation\ProviderRepository;
+use Illuminate\Filesystem\Filesystem;
+use Shpasser\GaeSupportL5\Storage\CacheFs;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
 
@@ -51,10 +54,108 @@ class Application extends IlluminateApplication {
         if ($this->isRunningOnGae())
         {
             $this->replaceDefaultSymfonyLineDumpers();
+            $this->initializeCacheFs($basePath);
         }
 
         parent::__construct($basePath);
     }
+
+    /**
+     * Initializes the Cache Filesystem.
+     *
+     * @param string $basePath
+     */
+    protected function initializeCacheFs($basePath)
+    {
+        CacheFs::register();
+        mkdir('cachefs://framework');
+        mkdir('cachefs://framework/views');
+
+        if (env('GAE_CACHE_CONFIG_FILE') === true)
+        {
+            $this->cacheFile(
+                $basePath.'/storage/framework/config.php',
+                'cachefs://framework/config.php');
+        }
+
+        if(env('GAE_CACHE_ROUTES_FILE') === true)
+        {
+            $this->cacheFile(
+                $basePath.'/storage/framework/routes.php',
+                'cachefs://framework/routes.php');
+        }
+    }
+
+    /**
+     * Adds the requested file to cache.
+     *
+     * @param string $path path to the file to be cached.
+     * @param string $cachefsPath path for the cached file(under 'cachefs://').
+     */
+    protected function cacheFile($path, $cachefsPath)
+    {
+        if (file_exists($path))
+        {
+            $contents = file_get_contents($path);
+            file_put_contents($cachefsPath, $contents);
+        }
+    }
+
+    /**
+     * Register all of the configured providers.
+     *
+     * @return void
+     */
+    public function registerConfiguredProviders()
+    {
+        if ($this->isRunningOnGae() && env('GAE_CACHE_SERVICES_FILE') === true)
+        {
+            $manifestPath = CacheFs::PROTOCOL . '://framework/services.json';
+
+            (new ProviderRepository($this, new Filesystem, $manifestPath))
+                ->load($this->config['app.providers']);
+        }
+        else
+        {
+            parent::registerConfiguredProviders();
+        }
+    }
+
+    /**
+     * Get the path to the configuration cache file.
+     *
+     * @return string
+     */
+    public function getCachedConfigPath()
+    {
+        if ($this->isRunningOnGae() && env('GAE_CACHE_CONFIG_FILE') === true)
+        {
+            return CacheFs::PROTOCOL.'://framework/config.php';
+        }
+        else
+        {
+            return parent::getCachedConfigPath();
+        }
+    }
+
+
+    /**
+     * Get the path to the routes cache file.
+     *
+     * @return string
+     */
+    public function getCachedRoutesPath()
+    {
+        if ($this->isRunningOnGae() && env('GAE_CACHE_ROUTES_FILE') === true)
+        {
+            return CacheFs::PROTOCOL.'://framework/routes.php';
+        }
+        else
+        {
+            return parent::getCachedRoutesPath();
+        }
+    }
+
 
     /**
      * Detect if the application is running on GAE.
@@ -122,7 +223,13 @@ class Application extends IlluminateApplication {
      */
     public function storagePath()
     {
-        if ($this->runningOnGae) {
+        if ($this->runningOnGae)
+        {
+            if (env('GAE_SKIP_GCS_INIT') === true)
+            {
+                return "gs://{$this->appId}.appspot.com/storage";
+            }
+
             if ( ! is_null($this->gaeBucketPath))
             {
                 return $this->gaeBucketPath;
@@ -132,10 +239,12 @@ class Application extends IlluminateApplication {
             // Get the first bucket in the list.
             $bucket = current(explode(', ', $buckets));
 
-            if ($bucket) {
+            if ($bucket)
+            {
                 $this->gaeBucketPath = "gs://{$bucket}/storage";
 
-                if ( ! file_exists($this->gaeBucketPath)) {
+                if ( ! file_exists($this->gaeBucketPath))
+                {
                     mkdir($this->gaeBucketPath);
                     mkdir($this->gaeBucketPath.'/app');
                     mkdir($this->gaeBucketPath.'/framework');
