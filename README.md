@@ -127,18 +127,20 @@ To use either the `production` or the `local` environment rename the appropriate
 The optimizations allow the application to reduce the use of GCS, which is the only read-write
 storage available on GAE platform as of now.
 
-In order to optimize view compilation the included 'cachefs' filesystem can be used to store
-compiled views using 'memcached' service. 'cachefs' does not provide the application with a
+In order to optimize view compilation the included `cachefs` filesystem can be used to store
+compiled views using `memcached` service. `cachefs` does not provide the application with a
 reliable storage solution, information stored using 'memcached' is managed according to
-'memcached' rules and may be deleted when 'memcached' decides to. Since the views can
+`memcached` rules and may be deleted when `memcached` decides to. Since the views can
 be compiled again without any information loss it is appropriate to store compiled
-views using 'cachefs'. 
+views using `cachefs`. 
 
 'cachefs' has the following structure:
 
+<pre>
 /
 +-- framework
     +-- views 
+</pre>
 
 '/framework/views' is used to store the compiled views.
 
