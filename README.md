@@ -129,16 +129,16 @@ In order to support Laravel filesystem on GAE the artisan command modifies `conf
 to include an additional disk: 
 
 ```php
-    'gae' => [
-        'driver' => 'gae',
-        'root'   => storage_path().'/app',
-    ],
+'gae' => [
+    'driver' => 'gae',
+    'root'   => storage_path().'/app',
+],
 ```
 
 and adds the following line to `.env.production` file:
  
 ```php
-FILESYSTEM=gae
+FILESYSTEM = gae
 ```
 
 ### Optimizations
@@ -190,7 +190,7 @@ If not used the filesystem initialization can be removed to minimize GCS usage. 
 do so, remove the following line from `.env.production` file:
                                                                               
 ```php
-FILESYSTEM=gae
+FILESYSTEM = gae
 ```
 
 ## Deploy
