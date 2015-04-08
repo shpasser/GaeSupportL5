@@ -225,11 +225,6 @@ class Application extends IlluminateApplication {
     {
         if ($this->runningOnGae)
         {
-            if (env('GAE_SKIP_GCS_INIT') === true)
-            {
-                return "gs://{$this->appId}.appspot.com/storage";
-            }
-
             if ( ! is_null($this->gaeBucketPath))
             {
                 return $this->gaeBucketPath;
@@ -242,6 +237,11 @@ class Application extends IlluminateApplication {
             if ($bucket)
             {
                 $this->gaeBucketPath = "gs://{$bucket}/storage";
+
+                if (env('GAE_SKIP_GCS_INIT') === true)
+                {
+                    return $this->gaeBucketPath;
+                }
 
                 if ( ! file_exists($this->gaeBucketPath))
                 {

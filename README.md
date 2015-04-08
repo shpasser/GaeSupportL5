@@ -6,7 +6,8 @@ Currently supported features:
 - Generation of general configuration files,
 - Mail service provider,
 - Queue service provider,
-- Database connection.
+- Database connection,
+- Filesystem.
 
 ## Installation
 
@@ -122,6 +123,24 @@ The migrations are supported while working in `local` environment only.
 
 To use either the `production` or the `local` environment rename the appropriate file to `.env`.
 
+### Filesystem
+
+In order to support Laravel filesystem on GAE the artisan command modifies `config/filesystem.php`
+to include an additional disk: 
+
+```php
+    'gae' => [
+        'driver' => 'gae',
+        'root'   => storage_path().'/app',
+    ],
+```
+
+and adds the following line to `.env.production` file:
+ 
+```php
+FILESYSTEM=gae
+```
+
 ### Optimizations
 
 The optimizations allow the application to reduce the use of GCS, which is the only read-write
@@ -129,7 +148,7 @@ storage available on GAE platform as of now.
 
 In order to optimize view compilation the included `cachefs` filesystem can be used to store
 compiled views using `memcached` service. `cachefs` does not provide the application with a
-reliable storage solution, information stored using 'memcached' is managed according to
+reliable storage solution, information stored using `memcached` is managed according to
 `memcached` rules and may be deleted when `memcached` decides to. Since the views can
 be compiled again without any information loss it is appropriate to store compiled
 views using `cachefs`. 
@@ -163,6 +182,15 @@ In order to use `config.php` and `routes.php` files they have to be generated us
 Additionally the initialization of GSC bucket can be skipped to boost the performance: 
 ```php
 GAE_SKIP_GCS_INIT = true
+```
+the storage path will be set to `/storage` directory of the GCS bucket and storage
+directory structure creation will be skipped.
+   
+If not used the filesystem initialization can be removed to minimize GCS usage. In order to
+do so, remove the following line from `.env.production` file:
+                                                                              
+```php
+FILESYSTEM=gae
 ```
 
 ## Deploy

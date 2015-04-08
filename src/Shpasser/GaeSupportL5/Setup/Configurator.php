@@ -456,7 +456,7 @@ EOT
         $replacements = [
             "'default' => env('FILESYSTEM', 'local')",
 <<<EOT
-            'disks' => [
+'disks' => [
 
 		'gae' => [
 			'driver' => 'gae',

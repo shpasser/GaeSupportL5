@@ -35,11 +35,20 @@ final class CacheFs {
      */
     private static $memcached = null;
 
+    /**
+     * Registers the Stream Wrapper.
+     */
     public static function register()
     {
         stream_wrapper_register(self::PROTOCOL, 'Shpasser\GaeSupportL5\Storage\CacheFs');
     }
 
+    /**
+     * Returns the memcached instance.
+     *
+     * @return Memcached
+     * @throws RuntimeException
+     */
     private static function cache()
     {
         if (is_null(self::$memcached))
@@ -179,15 +188,31 @@ final class CacheFs {
 		return true;
 	}
 
+    /**
+     * Stream metadata is not supported.
+     *
+     * @param $path
+     * @param $option
+     * @param $value
+     * @return bool always false.
+     */
 	public function stream_metadata($path, $option, $value)
 	{
 		return false;
 	}
 
+    /**
+     * Opens a stream.
+     *
+     * @param $path
+     * @param $mode
+     * @param $options
+     * @param $opened_path
+     * @return bool true on success, false otherwise.
+     * @throws RuntimeException
+     */
 	public function stream_open($path, $mode, $options, &$opened_path)
 	{
-        //var_dump('open: '.$path);
-
         $contents = self::cache()->get($path);
         $fileExists = (false !== $contents);
 
@@ -239,44 +264,68 @@ final class CacheFs {
 
 
 	/**
-	* Read from a stream, return string of bytes.
-	*/
+     * Reads from a stream.
+     *
+     * @return string string of bytes.
+     */
 	public function stream_read($count)
 	{
 		return fread($this->fd, $count);
 	}
 
+    /**
+     * Performs a seek operation on a stream.
+     *
+     * @param $offset
+     * @param $whence
+     * @return int
+     */
 	public function stream_seek($offset, $whence)
 	{
 		return fseek($this->fd, $offset, $whence);
 	}
 
+    /**
+     * Stream option setting is not supported.
+     *
+     * @return bool always false.
+     */
 	public function stream_set_option($option, $arg1, $arg2)
 	{
 		return false;
 	}
 
+    /**
+     * Returns a stream stat information.
+     *
+     * @return array stat information.
+     */
 	public function stream_stat()
 	{
 		return $this->url_stat($this->path, 0);
 	}
 
+    /**
+     * Returns the current position in a stream.
+     *
+     * @return int the position.
+     */
 	public function stream_tell()
 	{
 		return ftell($this->fd);
 	}
 
 	/**
-	* Return the number of bytes written.
-	*/
+	 * Returns the number of bytes written.
+	 */
 	public function stream_write($data)
 	{
 		return fwrite($this->fd, $data);
 	}
 
 	/**
-	* Deletes a file. Called in response to unlink($filename).
-	*/
+	 * Deletes a file. Called in response to unlink($filename).
+	 */
 	public function unlink($path)
 	{
 		if (false === self::cache()->get($path))
@@ -290,10 +339,11 @@ final class CacheFs {
 	}
 
 	/**
-	 * [url_stat description]
+	 * Returns stat information for a given path.
+     *
 	 * @param  string $path
 	 * @param  int $flags
-	 * @return bool [description]
+	 * @return array stat information.
 	 */
 	public function url_stat($path, $flags)
 	{
@@ -339,7 +389,9 @@ final class CacheFs {
 	}
 
     /**
-     * bool
+     * Closes directory listing operation.
+     *
+     * @return bool always true.
      */
     public function dir_closedir()
     {
@@ -348,7 +400,9 @@ final class CacheFs {
     }
 
     /**
-     * bool
+     * Opens directory listing operation.
+     *
+     * @return bool always true.
      */
     public function dir_opendir($path, $options)
     {
@@ -357,7 +411,9 @@ final class CacheFs {
     }
 
     /**
-     * string
+     * Returns the nex element in directory listing.
+     *
+     * @return string the next directory element name.
      */
     public function dir_readdir()
     {
@@ -365,7 +421,9 @@ final class CacheFs {
     }
 
     /**
-     * bool
+     * Restarts directory listing operation.
+     *
+     * @return bool always true.
      */
     public function dir_rewinddir()
     {
@@ -374,11 +432,13 @@ final class CacheFs {
     }
 
     /**
+     * Creates a directory.
      *
      * @param string $path
      * @param int $mode
      * @param int $options
-     * bool
+     *
+     * @return boot true on success, false otherwise.
      */
     public function mkdir($path, $mode, $options)
     {
@@ -422,7 +482,12 @@ final class CacheFs {
     }
 
     /**
-     * bool
+     * Removes a directory.
+     *
+     * @param string $path
+     * @param int $options
+     *
+     * @return boot true on success, false otherwise.
      */
     public function rmdir($path, $options)
     {
