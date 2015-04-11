@@ -134,8 +134,6 @@ final class CacheFs {
 	 */
 	public function stream_close()
 	{
-        //var_dump('close: '.$this->path);
-
         $this->stream_flush();
 		fclose($this->fd);
 		$this->path = null;
@@ -161,8 +159,6 @@ final class CacheFs {
 	 */
 	public function stream_flush()
 	{
-        //var_dump('flush: '.$this->path);
-
         switch($this->mode)
         {
             case 'r+':
@@ -347,8 +343,6 @@ final class CacheFs {
 	 */
 	public function url_stat($path, $flags)
 	{
-        //var_dump('url_stat: '.$path);
-
         $now  = time();
         $stat = [
             'dev'	=>	0, // no specific device number
@@ -442,8 +436,6 @@ final class CacheFs {
      */
     public function mkdir($path, $mode, $options)
     {
-        //var_dump('mkdir: '.__LINE__);
-
         if (array_has(self::$folders, $path))
         {
             return true;

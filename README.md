@@ -163,25 +163,27 @@ views using `cachefs`.
 
 '/framework/views' is used to store the compiled views.
 
-Use the following option to enable the feature in `.env` file:
+Use the following option to enable the feature in `.env.production` file:
 ```php
 COMPILED_PATH = cachefs://framework/views
 ```
 
 '/framework' is used to store the `services.json`, `config.php` and `routes.php` files,
-in order to control caching of these files use the following options in `.env` file:
-```php
-GAE_CACHE_SERVICES_FILE = true
-GAE_CACHE_CONFIG_FILE = true
-GAE_CACHE_ROUTES_FILE = true
+in order to control caching of these files use the following options in `app.yaml` file:
+```yml
+env_variables:
+        GAE_CACHE_SERVICES_FILE: true
+        GAE_CACHE_CONFIG_FILE: true
+        GAE_CACHE_ROUTES_FILE: true
 ```
 
 In order to use `config.php` and `routes.php` files they have to be generated using
 `php artisan config:cache` and `php artisan routes:cache` commands.
 
 Additionally the initialization of GSC bucket can be skipped to boost the performance: 
-```php
-GAE_SKIP_GCS_INIT = true
+```yml
+env_variables:
+        GAE_SKIP_GCS_INIT: true
 ```
 the storage path will be set to `/storage` directory of the GCS bucket and storage
 directory structure creation will be skipped.

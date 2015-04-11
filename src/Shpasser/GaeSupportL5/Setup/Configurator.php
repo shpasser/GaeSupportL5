@@ -60,7 +60,10 @@ class Configurator {
         $this->processFile($config_queue_php, ['addQueueConfig']);
         $this->processFile($config_database_php, ['addCloudSqlConfig']);
         $this->processFile($config_filesystems_php, ['addGaeDisk']);
-        $this->processFile($cached_config_php, ['fixCachedConfig']);
+        if (file_exists($cached_config_php))
+        {
+            $this->processFile($cached_config_php, ['fixCachedConfig']);
+        }
 
         if ($generateConfig)
         {
