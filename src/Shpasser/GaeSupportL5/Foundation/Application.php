@@ -57,6 +57,10 @@ class Application extends IlluminateApplication {
             $this->initializeCacheFs($basePath);
         }
 
+        // Make sure the optimized files are generated in
+        // $basePath.'/storage/framework' directory.
+        $this->useStoragePathForOptimizations();
+
         parent::__construct($basePath);
     }
 
