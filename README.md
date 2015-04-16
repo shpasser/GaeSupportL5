@@ -32,7 +32,7 @@ Then include the service provider within `config/app.php`.
 Generate the GAE related files / entries.
 
 ```bash
-php artisan gae:setup --config --bucket="your-bucket-id" --db-socket="cloud-sql-instance-socket-connection-string" --db-name="cloud-sql-database-name" --db-host="cloud-sql-instance-ipv4-address" your-app-id
+php artisan gae:setup --config --cache-config --bucket="your-bucket-id" --db-socket="cloud-sql-instance-socket-connection-string" --db-name="cloud-sql-database-name" --db-host="cloud-sql-instance-ipv4-address" your-app-id
 ```
 
 The default GCS bucket is configured unless a custom bucket id is defined using
@@ -177,8 +177,9 @@ env_variables:
         GAE_CACHE_ROUTES_FILE: true
 ```
 
-In order to use `config.php` and `routes.php` files they have to be generated using
-`php artisan config:cache` and `php artisan routes:cache` commands.
+In order to use `config.php` first generate it using the `--cache-config` option of
+`php artisan gae:setup` command. `routes.php` has to be generated using 
+`php artisan routes:cache` command.
 
 Additionally the initialization of GSC bucket can be skipped to boost the performance: 
 ```yml

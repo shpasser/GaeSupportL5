@@ -47,12 +47,13 @@ class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
 
         $appId = 'laravel-app-gae-id';
         $generateConfig = true;
+        $cacheConfig = false;
         $bucketId = null;
         $dbSocket = '/cloudsql/test-app:test-cloud-sql';
         $dbName   = 'gae_test_db';
         $dbHost   = 'XXX.XXX.XXX.XXX';
 
-        $configurator->configure($appId, $generateConfig, $bucketId, $dbSocket, $dbName, $dbHost);
+        $configurator->configure($appId, $generateConfig, $cacheConfig, $bucketId, $dbSocket, $dbName, $dbHost);
     }
 
     /**

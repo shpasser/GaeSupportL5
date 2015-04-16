@@ -1,6 +1,7 @@
 <?php namespace Shpasser\GaeSupportL5\Setup;
 
 use Illuminate\Console\Command;
+use Artisan;
 
 /**
  * Class Configurator
@@ -28,12 +29,13 @@ class Configurator {
      *
      * @param string $appId the GAE application ID.
      * @param bool $generateConfig if 'true' => generate GAE config files(app.yaml and php.ini).
+     * @param bool $cacheConfig if 'true' => generate cached config file(config.php).
      * @param string $bucketId the custom GCS bucket ID, if 'null' the default bucket is used.
      * @param string $dbSocket Cloud SQL socket connection string.
      * @param string $dbName Cloud SQL database name.
      * @param string $dbHost Cloud SQL host IPv4 address.
      */
-    public function configure($appId, $generateConfig, $bucketId,
+    public function configure($appId, $generateConfig, $cacheConfig, $bucketId,
                               $dbSocket, $dbName, $dbHost)
     {
         $env_file               = app_path().'/../.env';
@@ -60,9 +62,16 @@ class Configurator {
         $this->processFile($config_queue_php, ['addQueueConfig']);
         $this->processFile($config_database_php, ['addCloudSqlConfig']);
         $this->processFile($config_filesystems_php, ['addGaeDisk']);
-        if (file_exists($cached_config_php))
+
+        if ($cacheConfig)
         {
-            $this->processFile($cached_config_php, ['fixCachedConfig']);
+            app()->loadEnvironmentFrom($env_production_file);
+
+            $result = Artisan::call('config:cache', array());
+            if ($result === 0)
+            {
+                $this->processFile($cached_config_php, ['fixCachedConfig']);
+            }
         }
 
         if ($generateConfig)
@@ -219,7 +228,7 @@ class Configurator {
             return;
         }
 
-        $this->createBackupFile($filePath);
+        $this->backupFile($filePath);
 
         file_put_contents($filePath, $processed);
     }
@@ -506,7 +515,7 @@ EOT
 
         if ($contents !== $modified)
         {
-            $this->myCommand->info('Fixed "storage/framework/config.php" for GAE deployment.');
+            $this->myCommand->info('Generated "storage/framework/config.php" for GAE deployment.');
             $this->myCommand->comment('* To use "storage/framework/config.php" locally please regenerate it.');
         }
 
@@ -574,6 +583,12 @@ skip_files:
         - ^(.*/)?\.(?!env).*$
         - ^(.*/)?node_modules.*$
         - ^(.*/)?_ide_helper\.php$
+
+env_variables:
+        GAE_CACHE_SERVICES_FILE: false
+        GAE_CACHE_CONFIG_FILE: false
+        GAE_CACHE_ROUTES_FILE: false
+        GAE_SKIP_GCS_INIT: false
 EOT;
         file_put_contents($filePath, $contents);
 
@@ -623,8 +638,9 @@ EOT;
      * Creates a backup copy of a desired file.
      *
      * @param string $filePath the file path.
+     * @return string the created backup file path.
      */
-    protected function createBackupFile($filePath)
+    protected function backupFile($filePath)
     {
         $sourcePath = $filePath;
         $backupPath = $filePath.'.bak';
@@ -636,6 +652,31 @@ EOT;
         }
 
         copy($sourcePath, $backupPath);
+
+        return $backupPath;
+    }
+
+    /**
+     * Restores a file from its backup copy.
+     *
+     * @param string $filePath the file path.
+     * @param string $backupPath the backup path.
+     * @param boolean $clean if 'true' deletes the backup copy.
+     * @return string the created backup file path.
+     */
+    protected function restoreFile($filePath, $backupPath, $clean = true)
+    {
+        if (file_exists($backupPath))
+        {
+            copy($backupPath, $filePath);
+
+            if ($clean)
+            {
+                unlink($backupPath);
+            }
+        }
+
+        return $backupPath;
     }
 
 }

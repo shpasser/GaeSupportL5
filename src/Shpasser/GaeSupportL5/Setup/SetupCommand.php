@@ -49,6 +49,7 @@ class SetupCommand extends Command {
 		$configurator->configure(
 			$this->argument('app-id'),
 			$this->option('config'),
+            $this->option('cache-config'),
 			$this->option('bucket'),
             $this->option('db-socket'),
             $this->option('db-name'),
@@ -78,6 +79,8 @@ class SetupCommand extends Command {
 		return array(
 			array('config', null, InputOption::VALUE_NONE,
                   'Generate "app.yaml" and "php.ini" config files.', null),
+            array('cache-config', null, InputOption::VALUE_NONE,
+                'Generate cached Laravel config file for use on Google App Engine.', null),
 			array('bucket', null, InputOption::VALUE_REQUIRED,
                   'Use the specified gs-bucket instead of the default one.', null),
             array('db-socket', null, InputOption::VALUE_REQUIRED,
