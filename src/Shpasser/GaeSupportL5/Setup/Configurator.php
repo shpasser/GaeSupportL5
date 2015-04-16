@@ -583,6 +583,7 @@ skip_files:
         - ^(.*/)?\.(?!env).*$
         - ^(.*/)?node_modules.*$
         - ^(.*/)?_ide_helper\.php$
+        - ^(.*/)?\.DS_Store$
 
 env_variables:
         GAE_CACHE_SERVICES_FILE: false
