@@ -179,7 +179,7 @@ env_variables:
 
 In order to use `config.php` first generate it using the `--cache-config` option of
 `php artisan gae:setup` command. `routes.php` has to be generated using 
-`php artisan routes:cache` command.
+`php artisan route:cache` command.
 
 Additionally the initialization of GSC bucket can be skipped to boost the performance: 
 ```yml
