@@ -1,5 +1,7 @@
 # GaeSupport
 
+[![Join the chat at https://gitter.im/shpasser/GaeSupportL5](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shpasser/GaeSupportL5?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Google App Engine(GAE) Support package for Laravel 5.
 
 Currently supported features:
