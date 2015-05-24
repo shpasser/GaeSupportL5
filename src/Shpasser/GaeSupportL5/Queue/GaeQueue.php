@@ -111,7 +111,7 @@ class GaeQueue extends Queue implements QueueContract {
 	 */
 	public function later($delay, $job, $data = '', $queue = null)
 	{
-		$delay = $this->getSeconds($delay);
+		$delay_seconds = $this->getSeconds($delay);
 
 		$payload = $this->createPayload($job, $data, $queue);
 
