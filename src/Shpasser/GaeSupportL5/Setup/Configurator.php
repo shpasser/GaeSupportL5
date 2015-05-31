@@ -65,6 +65,10 @@ class Configurator {
 
         if ($cacheConfig)
         {
+            // Make sure the config cache file will be created in
+            // "storage/framework" directory.
+            app()->useStoragePathForOptimizations();
+
             app()->loadEnvironmentFrom($env_production_file);
 
             $result = Artisan::call('config:cache', array());
