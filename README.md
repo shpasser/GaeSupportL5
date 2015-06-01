@@ -1,10 +1,6 @@
 # GaeSupport
 
 [![Join the chat at https://gitter.im/shpasser/GaeSupportL5](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shpasser/GaeSupportL5?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.svg)](https://packagist.org/packages/shpasser/gae-support-l5)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/shpasser/gae-support-l5)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/shpasser/gae-support-l5)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/shpasser/gae-support-l5)
 
 Google App Engine(GAE) Support package for Laravel 5.
 
