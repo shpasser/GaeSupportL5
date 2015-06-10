@@ -15,6 +15,8 @@ Currently supported features:
 - Database connection,
 - Filesystem.
 
+For Lumen see https://github.com/shpasser/GaeSupportLumen.
+
 ## Installation
 
 Pull in the package via Composer.
