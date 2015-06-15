@@ -57,10 +57,6 @@ class Application extends IlluminateApplication {
             $this->initializeCacheFs($basePath);
         }
 
-        // Make sure the optimized files are generated in
-        // $basePath.'/storage/framework' directory.
-        $this->useStoragePathForOptimizations();
-
         parent::__construct($basePath);
     }
 
@@ -74,19 +70,21 @@ class Application extends IlluminateApplication {
         CacheFs::register();
         mkdir('cachefs://framework');
         mkdir('cachefs://framework/views');
+        mkdir('cachefs://bootstrap');
+        mkdir('cachefs://bootstrap/cache');
 
         if (env('GAE_CACHE_CONFIG_FILE') === true)
         {
             $this->cacheFile(
-                $basePath.'/storage/framework/config.php',
-                'cachefs://framework/config.php');
+                $basePath.'/bootstrap/cache/config.php',
+                'cachefs://bootstrap/cache/config.php');
         }
 
         if(env('GAE_CACHE_ROUTES_FILE') === true)
         {
             $this->cacheFile(
-                $basePath.'/storage/framework/routes.php',
-                'cachefs://framework/routes.php');
+                $basePath.'/bootstrap/cache/routes.php',
+                'cachefs://bootstrap/cache/routes.php');
         }
     }
 
@@ -105,25 +103,6 @@ class Application extends IlluminateApplication {
         }
     }
 
-    /**
-     * Register all of the configured providers.
-     *
-     * @return void
-     */
-    public function registerConfiguredProviders()
-    {
-        if ($this->isRunningOnGae() && env('GAE_CACHE_SERVICES_FILE') === true)
-        {
-            $manifestPath = CacheFs::PROTOCOL . '://framework/services.json';
-
-            (new ProviderRepository($this, new Filesystem, $manifestPath))
-                ->load($this->config['app.providers']);
-        }
-        else
-        {
-            parent::registerConfiguredProviders();
-        }
-    }
 
     /**
      * Get the path to the configuration cache file.
@@ -134,12 +113,10 @@ class Application extends IlluminateApplication {
     {
         if ($this->isRunningOnGae() && env('GAE_CACHE_CONFIG_FILE') === true)
         {
-            return CacheFs::PROTOCOL.'://framework/config.php';
+            return 'cachefs://bootstrap/cache/config.php';
         }
-        else
-        {
-            return parent::getCachedConfigPath();
-        }
+
+        return parent::getCachedConfigPath();
     }
 
 
@@ -152,12 +129,25 @@ class Application extends IlluminateApplication {
     {
         if ($this->isRunningOnGae() && env('GAE_CACHE_ROUTES_FILE') === true)
         {
-            return CacheFs::PROTOCOL.'://framework/routes.php';
+            return 'cachefs://bootstrap/cache/routes.php';
         }
-        else
+
+        return parent::getCachedRoutesPath();
+    }
+
+    /**
+     * Get the path to the cached services.json file.
+     *
+     * @return string
+     */
+    public function getCachedServicesPath()
+    {
+        if ($this->isRunningOnGae() && env('GAE_CACHE_SERVICES_FILE') === true)
         {
-            return parent::getCachedRoutesPath();
+            return 'cachefs://bootstrap/cache/services.json';
         }
+
+        return parent::getCachedServicesPath();
     }
 
 

@@ -6,7 +6,7 @@
 [![Latest Unstable Version](https://poser.pugx.org/shpasser/gae-support-l5/v/unstable)](https://packagist.org/packages/shpasser/gae-support-l5)
 [![License](https://poser.pugx.org/shpasser/gae-support-l5/license)](https://packagist.org/packages/shpasser/gae-support-l5)
 
-Google App Engine(GAE) Support package for Laravel 5.
+Google App Engine(GAE) Support package for Laravel 5.1.
 
 Currently supported features:
 - Generation of general configuration files,
@@ -31,7 +31,7 @@ Then include the service provider within `config/app.php`.
 
 ```php
 'providers' => [
-    'Shpasser\GaeSupportL5\GaeSupportServiceProvider'
+    Shpasser\GaeSupportL5\GaeSupportServiceProvider::class
 ];
 ```
 
@@ -165,6 +165,8 @@ views using `cachefs`.
 
 <pre>
 /
++-- bootstrap
+    +-- cache 
 +-- framework
     +-- views 
 </pre>
@@ -176,7 +178,7 @@ Use the following option to enable the feature in `.env.production` file:
 COMPILED_PATH = cachefs://framework/views
 ```
 
-'/framework' is used to store the `services.json`, `config.php` and `routes.php` files,
+'/bootstrap/cache' is used to store the `services.json`, `config.php` and `routes.php` files,
 in order to control caching of these files use the following options in `app.yaml` file:
 ```yml
 env_variables:

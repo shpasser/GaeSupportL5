@@ -48,7 +48,7 @@ class Configurator {
         $config_queue_php       = app_path().'/../config/queue.php';
         $config_database_php    = app_path().'/../config/database.php';
         $config_filesystems_php = app_path().'/../config/filesystems.php';
-        $cached_config_php      = storage_path().'/framework/config.php';
+        $cached_config_php      = base_path().'/bootstrap/cache/config.php';
 
         $this->createEnvProductionFile($env_file, $env_production_file, $dbSocket, $dbName);
         $this->createEnvLocalFile($env_file, $env_local_file, $dbHost, $dbName);
@@ -65,10 +65,6 @@ class Configurator {
 
         if ($cacheConfig)
         {
-            // Make sure the config cache file will be created in
-            // "storage/framework" directory.
-            app()->useStoragePathForOptimizations();
-
             app()->loadEnvironmentFrom($env_production_file);
 
             $result = Artisan::call('config:cache', array());
@@ -494,7 +490,7 @@ EOT
     /**
      * Fixes the paths in the cached config file.
      *
-     * @param string $contents the 'storage/framework/config.php' file contents.
+     * @param string $contents the 'bootstrap/cache/config.php' file contents.
      * @return string the modified file contents.
      */
     protected function fixCachedConfig($contents)
@@ -519,8 +515,8 @@ EOT
 
         if ($contents !== $modified)
         {
-            $this->myCommand->info('Generated "storage/framework/config.php" for GAE deployment.');
-            $this->myCommand->comment('* To use "storage/framework/config.php" locally please regenerate it.');
+            $this->myCommand->info('Generated "bootstrap/cache/config.php" for GAE deployment.');
+            $this->myCommand->comment('* To use "bootstrap/cache/config.php" locally please regenerate it.');
         }
 
         return $modified;
@@ -568,7 +564,7 @@ EOT;
 <<<EOT
 application:    {$appId}
 version:        1
-runtime:        php
+runtime:        php55
 api_version:    1
 
 handlers:
