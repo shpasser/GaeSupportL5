@@ -152,7 +152,7 @@ class Application extends IlluminateApplication {
             return 'cachefs://bootstrap/cache/services.json';
         }
 
-        return storagePath().'/framework/services.json';
+        return $this->storagePath().'/framework/services.json';
     }
 
 
