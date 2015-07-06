@@ -499,10 +499,10 @@ EOT
         $storage_path = storage_path();
         $base_path = base_path();
 
-        $expressions = [
-            "!'${app_path}!",
-            "!'${storage_path}!",
-            "!'${base_path}!"
+        $strings = [
+            "'${app_path}",
+            "'${storage_path}",
+            "'${base_path}"
         ];
 
         $replacements = [
@@ -511,7 +511,7 @@ EOT
             "base_path().'"
 		];
 
-        $modified = preg_replace($expressions, $replacements, $contents);
+        $modified = str_replace($strings, $replacements, $contents);
 
         if ($contents !== $modified)
         {

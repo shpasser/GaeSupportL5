@@ -142,12 +142,17 @@ class Application extends IlluminateApplication {
      */
     public function getCachedServicesPath()
     {
-        if ($this->isRunningOnGae() && env('GAE_CACHE_SERVICES_FILE') === true)
+        if ( ! $this->isRunningOnGae())
+        {
+           return parent::getCachedServicesPath();
+        }
+
+        if (env('GAE_CACHE_SERVICES_FILE') === true)
         {
             return 'cachefs://bootstrap/cache/services.json';
         }
 
-        return parent::getCachedServicesPath();
+        return storagePath().'/framework/services.json';
     }
 
 
@@ -249,7 +254,7 @@ class Application extends IlluminateApplication {
             }
         }
 
-        return $this->basePath.'/storage';
+        return parent::storagePath();
     }
 
 }
