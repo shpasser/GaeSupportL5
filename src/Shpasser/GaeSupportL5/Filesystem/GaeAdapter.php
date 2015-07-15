@@ -15,7 +15,7 @@ use League\Flysystem\Config;
  *
  * - 'writeStream()' replace 'fopen()' mode from 'w+', which is not supported
  * on GCS buckets and replaces it with 'w', as for the
- * specific function both 'w+' and 'w' shuold work peoperly.
+ * specific function both 'w+' and 'w' should work properly.
  *
  * @package Shpasser\GaeSupportL5\Filesystem
  */
