@@ -35,12 +35,34 @@ final class CacheFs {
      */
     private static $memcached = null;
 
+    private static $registered = false;
+
     /**
-     * Registers the Stream Wrapper.
+     * Registers the Stream Wrapper and connects to memcached server.
+     *
+     * @return boolean 'true' if connection was successful, 'false' otherwise.
      */
     public static function register()
     {
-        stream_wrapper_register(self::PROTOCOL, 'Shpasser\GaeSupportL5\Storage\CacheFs');
+        if (self::$registered)
+        {
+            return true;
+        }
+
+        try
+        {
+            // initialize the connection to memcached
+            self::cache();
+            // register the wrapper
+            stream_wrapper_register(self::PROTOCOL, 'Shpasser\GaeSupportL5\Storage\CacheFs');
+            self::$registered = true;
+        }
+        catch(\RuntimeException $ex)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -66,7 +88,7 @@ final class CacheFs {
 
             if (self::$memcached->getVersion() === false)
             {
-                throw new RuntimeException("Could not establish Memcached connection.");
+                throw new \RuntimeException("Could not establish Memcached connection.");
             }
         }
 
@@ -450,7 +472,7 @@ final class CacheFs {
             return true;
         }
 
-        if ($options & STREAM_MKDIR_RECURSIVE)
+        if ( ! ($options & STREAM_MKDIR_RECURSIVE))
         {
             return false;
         }
