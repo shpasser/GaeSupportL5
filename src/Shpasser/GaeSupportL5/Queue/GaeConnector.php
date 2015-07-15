@@ -1,8 +1,8 @@
 <?php namespace Shpasser\GaeSupportL5\Queue;
 
 use Illuminate\Http\Request;
-use Illuminate\Encryption\Encrypter;
 use Illuminate\Queue\Connectors\ConnectorInterface;
+use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 
 class GaeConnector implements ConnectorInterface {
 
@@ -24,10 +24,10 @@ class GaeConnector implements ConnectorInterface {
 	/**
 	 * Create a new GAE connector instance.
 	 *
-	 * @param \Illuminate\Encryption\Encrypter $crypt
+	 * @param \Illuminate\Contracts\Encryption\Encrypter $crypt
 	 * @param \Illuminate\Http\Request $request
 	 */
-	public function __construct(Encrypter $crypt, Request $request)
+	public function __construct(EncrypterContract $crypt, Request $request)
 	{
 		$this->crypt = $crypt;
 		$this->request = $request;
