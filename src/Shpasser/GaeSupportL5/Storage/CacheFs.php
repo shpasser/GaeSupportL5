@@ -2,7 +2,6 @@
 
 use Memcached;
 
-
 /**
  * A Stream Wrapper for Cache File System.
  *
@@ -35,14 +34,20 @@ final class CacheFs {
      */
     private static $memcached = null;
 
+    /**
+     * Register the stream wrapper only once
+     * @var boolean
+     */
     private static $registered = false;
 
+
     /**
-     * Registers the Stream Wrapper and connects to memcached server.
+     * Establishes a connection to memcached server and
+     * registers the Stream Wrapper.
      *
      * @return boolean 'true' if connection was successful, 'false' otherwise.
      */
-    public static function register()
+    public static function initialize()
     {
         if (self::$registered)
         {
