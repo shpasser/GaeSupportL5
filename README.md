@@ -117,24 +117,24 @@ and can be found in `.env.production` configuration file.
 
 ### Database
 
-Google Cloud SQL is supported via Laravel's MySql driver. The connection configuration is added by 
-the artisan command to `config/database.php` under `cloudsql`. The connection parameters can be 
+Google Cloud SQL is supported via Laravel's MySql driver. The connection configuration is added by
+the artisan command to `config/database.php` under `cloudsql`. The connection parameters can be
 configured using `--db-socket`, `--db-name` and `--db-host` options via the artisan command.
 
 The database related environment variables are set in `.env.production` and `.env.local` files.
 
 The `production` environment is configured to use the socket connection while the `local` configured
 to connect via the IPv4 address of the Google Cloud SQL instance. Use Google Developers Console in
-order to obtain the socket connection string and enable the IPv4 address of your database instance.  
+order to obtain the socket connection string and enable the IPv4 address of your database instance.
 
-The migrations are supported while working in `local` environment only.   
+The migrations are supported while working in `local` environment only.
 
 To use either the `production` or the `local` environment rename the appropriate file to `.env`.
 
 ### Filesystem
 
 In order to support Laravel filesystem on GAE the artisan command modifies `config/filesystem.php`
-to include an additional disk: 
+to include an additional disk:
 
 ```php
 'gae' => [
@@ -144,7 +144,7 @@ to include an additional disk:
 ```
 
 and adds the following line to `.env.production` file:
- 
+
 ```php
 FILESYSTEM = gae
 ```
@@ -159,49 +159,51 @@ compiled views using `memcached` service. `cachefs` does not provide the applica
 reliable storage solution, information stored using `memcached` is managed according to
 `memcached` rules and may be deleted when `memcached` decides to. Since the views can
 be compiled again without any information loss it is appropriate to store compiled
-views using `cachefs`. 
+views using `cachefs`.
 
-'cachefs' has the following structure:
+`cachefs` has the following structure:
 
 <pre>
 /
 +-- bootstrap
-    +-- cache 
+    +-- cache
 +-- framework
-    +-- views 
+    +-- views
 </pre>
 
 '/framework/views' is used to store the compiled views.
 
-Use the following option to enable the feature in `.env.production` file:
+Use the following option to enable the feature in `.env.production` and/or `.env.local` file:
 ```php
-COMPILED_PATH = cachefs://framework/views
+CACHE_COMPILED_VIEWS = true
 ```
 
 '/bootstrap/cache' is used to store the `services.json`, `config.php` and `routes.php` files,
-in order to control caching of these files use the following options in `app.yaml` file:
-```yml
-env_variables:
-        GAE_CACHE_SERVICES_FILE: true
-        GAE_CACHE_CONFIG_FILE: true
-        GAE_CACHE_ROUTES_FILE: true
+in order to control caching of these files use the following options in `.env.production` and/or `.env.local` file:
+```php
+CACHE_SERVICES_FILE = true
+CACHE_CONFIG_FILE = true
+CACHE_ROUTES_FILE = true
 ```
 
 In order to use `config.php` first generate it using the `--cache-config` option of
-`php artisan gae:setup` command. `routes.php` has to be generated using 
+`php artisan gae:setup` command. `routes.php` has to be generated using
 `php artisan route:cache` command.
 
-Additionally the initialization of GSC bucket can be skipped to boost the performance: 
+Cache related options are supported on GAE and/or in local environment as long as `memcached` service is installed and running.
+
+Additionally the initialization of GSC bucket can be skipped to boost the performance.
+In order to do so, set the following option in the `app.yaml` file:
 ```yml
 env_variables:
         GAE_SKIP_GCS_INIT: true
 ```
 the storage path will be set to `/storage` directory of the GCS bucket and storage
 directory structure creation will be skipped.
-   
+
 If not used the filesystem initialization can be removed to minimize GCS usage. In order to
 do so, remove the following line from `.env.production` file:
-                                                                              
+
 ```php
 FILESYSTEM = gae
 ```
