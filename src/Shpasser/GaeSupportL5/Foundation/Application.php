@@ -1,9 +1,7 @@
 <?php namespace Shpasser\GaeSupportL5\Foundation;
 
 use Illuminate\Foundation\Application as IlluminateApplication;
-use Illuminate\Foundation\ProviderRepository;
-use Illuminate\Filesystem\Filesystem;
-use Shpasser\GaeSupportL5\Storage\CacheFs;
+use Shpasser\GaeSupportL5\Storage\Optimizer;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
 
@@ -36,6 +34,12 @@ class Application extends IlluminateApplication {
      */
     protected $gaeBucketPath;
 
+
+    /**
+     * GAE storage optimizer
+     */
+    protected $optimizer = null;
+
     /**
      * Create a new GAE supported application instance.
      *
@@ -54,53 +58,12 @@ class Application extends IlluminateApplication {
         if ($this->isRunningOnGae())
         {
             $this->replaceDefaultSymfonyLineDumpers();
-            $this->initializeCacheFs($basePath);
         }
+
+        $this->optimizer = new Optimizer($basePath, $this->runningInConsole());
+        $this->optimizer->bootstrap();
 
         parent::__construct($basePath);
-    }
-
-    /**
-     * Initializes the Cache Filesystem.
-     *
-     * @param string $basePath
-     */
-    protected function initializeCacheFs($basePath)
-    {
-        CacheFs::register();
-        mkdir('cachefs://framework');
-        mkdir('cachefs://framework/views');
-        mkdir('cachefs://bootstrap');
-        mkdir('cachefs://bootstrap/cache');
-
-        if (env('GAE_CACHE_CONFIG_FILE') === true)
-        {
-            $this->cacheFile(
-                $basePath.'/bootstrap/cache/config.php',
-                'cachefs://bootstrap/cache/config.php');
-        }
-
-        if(env('GAE_CACHE_ROUTES_FILE') === true)
-        {
-            $this->cacheFile(
-                $basePath.'/bootstrap/cache/routes.php',
-                'cachefs://bootstrap/cache/routes.php');
-        }
-    }
-
-    /**
-     * Adds the requested file to cache.
-     *
-     * @param string $path path to the file to be cached.
-     * @param string $cachefsPath path for the cached file(under 'cachefs://').
-     */
-    protected function cacheFile($path, $cachefsPath)
-    {
-        if (file_exists($path))
-        {
-            $contents = file_get_contents($path);
-            file_put_contents($cachefsPath, $contents);
-        }
     }
 
 
@@ -111,12 +74,9 @@ class Application extends IlluminateApplication {
      */
     public function getCachedConfigPath()
     {
-        if ($this->isRunningOnGae() && env('GAE_CACHE_CONFIG_FILE') === true)
-        {
-            return 'cachefs://bootstrap/cache/config.php';
-        }
+        $path = $this->optimizer->getCachedConfigPath();
 
-        return parent::getCachedConfigPath();
+        return $path ?: parent::getCachedConfigPath();
     }
 
 
@@ -127,12 +87,9 @@ class Application extends IlluminateApplication {
      */
     public function getCachedRoutesPath()
     {
-        if ($this->isRunningOnGae() && env('GAE_CACHE_ROUTES_FILE') === true)
-        {
-            return 'cachefs://bootstrap/cache/routes.php';
-        }
+        $path = $this->optimizer->getCachedRoutesPath();
 
-        return parent::getCachedRoutesPath();
+        return $path ?: parent::getCachedRoutesPath();
     }
 
     /**
@@ -142,17 +99,19 @@ class Application extends IlluminateApplication {
      */
     public function getCachedServicesPath()
     {
-        if ( ! $this->isRunningOnGae())
+        $path = $this->optimizer->getCachedServicesPath();
+
+        if ($path)
         {
-           return parent::getCachedServicesPath();
+            return $path;
         }
 
-        if (env('GAE_CACHE_SERVICES_FILE') === true)
+        if ($this->isRunningOnGae())
         {
-            return 'cachefs://bootstrap/cache/services.json';
+            return $this->storagePath().'/framework/services.json';
         }
 
-        return $this->storagePath().'/framework/services.json';
+        return parent::getCachedServicesPath();
     }
 
 
@@ -161,7 +120,8 @@ class Application extends IlluminateApplication {
      */
     protected function detectGae()
     {
-        if ( ! class_exists(self::GAE_ID_SERVICE)) {
+        if ( ! class_exists(self::GAE_ID_SERVICE))
+        {
             $this->runningOnGae = false;
             $this->appId = null;
 
@@ -190,7 +150,7 @@ class Application extends IlluminateApplication {
             {
                 if (-1 !== $depth)
                 {
-                    echo str_repeat($indentPad, $depth).$line."\n";
+                    echo str_repeat($indentPad, $depth).$line.PHP_EOL;
                 }
             };
     }
@@ -237,7 +197,7 @@ class Application extends IlluminateApplication {
             {
                 $this->gaeBucketPath = "gs://{$bucket}/storage";
 
-                if (env('GAE_SKIP_GCS_INIT') === true)
+                if (env('GAE_SKIP_GCS_INIT'))
                 {
                     return $this->gaeBucketPath;
                 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Console\Command;
 use Artisan;
+use Shpasser\GaeSupportL5\Storage\Optimizer;
 
 /**
  * Class Configurator
@@ -44,7 +45,6 @@ class Configurator {
         $bootstrap_app_php      = app_path().'/../bootstrap/app.php';
         $config_app_php         = app_path().'/../config/app.php';
         $config_view_php        = app_path().'/../config/view.php';
-        $config_mail_php        = app_path().'/../config/mail.php';
         $config_queue_php       = app_path().'/../config/queue.php';
         $config_database_php    = app_path().'/../config/database.php';
         $config_filesystems_php = app_path().'/../config/filesystems.php';
@@ -58,7 +58,6 @@ class Configurator {
             'setLogHandler'
         ]);
         $this->processFile($config_view_php, ['replaceCompiledPath']);
-        $this->processFile($config_mail_php, ['setMailDriver']);
         $this->processFile($config_queue_php, ['addQueueConfig']);
         $this->processFile($config_database_php, ['addCloudSqlConfig']);
         $this->processFile($config_filesystems_php, ['addGaeDisk']);
@@ -137,6 +136,8 @@ class Configurator {
             $env['CLOUD_SQL_PASSWORD']  = '';
         }
 
+        $this->addOptimizerOptions($env);
+
         $env->write($env_production_file);
 
         $this->myCommand->info('Created the ".env.production" file.');
@@ -144,7 +145,7 @@ class Configurator {
 
 
     /**
-     * Creates a '.env.production' file based on the existing '.env' file.
+     * Creates a '.env.local' file based on the existing '.env' file.
      *
      * @param string $env_file The '.env' file path.
      * @param string $env_local_file The '.env.local' file path.
@@ -190,10 +191,28 @@ class Configurator {
             $env['CLOUD_SQL_PASSWORD']  = 'password';
         }
 
+        $this->addOptimizerOptions($env);
+
         $env->write($env_local_file);
 
         $this->myCommand->info('Created the ".env.local" file.');
     }
+
+
+    /**
+     * Adds 'Optimizer' options to an environment object.
+     *
+     * @param \Shpasser\GaeSupportL5\Setup\IniHelper $env
+     * the environment object to modify.
+     */
+    protected function addOptimizerOptions(IniHelper $env)
+    {
+        $env['CACHE_SERVICES_FILE'] = 'false';
+        $env['CACHE_CONFIG_FILE'] = 'false';
+        $env['CACHE_ROUTES_FILE'] = 'false';
+        $env['CACHE_COMPILED_VIEWS'] = 'false';
+    }
+
 
     /**
      * Processes a given file with given processors.
@@ -322,38 +341,19 @@ class Configurator {
      */
     protected function replaceCompiledPath($contents)
     {
-        $modified = preg_replace(
-            "/'compiled'\s*=>.*$/m",
-            "'compiled' => env('COMPILED_PATH', storage_path().'/framework/views'),",
-            $contents
-        );
-
-        if ($contents !== $modified)
-        {
-            $this->myCommand->info('Replaced the \'compiled\' path in "config/view.php".');
-        }
-
-        return $modified;
-    }
-
-    /**
-     * Processor function. Sets the mail driver
-     * for a Laravel GAE app.
-     *
-     * @param string $contents the 'config/mail.php' file contents.
-     *
-     * @return string the modified file contents.
-     */
-    protected function setMailDriver($contents)
-    {
-        $expression = "/'driver'.*=>[^env\(]*'\b.+\b'/";
-        $replacement = "'driver' => env('MAIL_DRIVER', 'smtp')";
+        $expression = "/'compiled'\s*=>\s*(.+(,|(?=\s+\]))|[^,]+(,|(?=\s+\])))/";
+        $replacement =
+<<<EOT
+'compiled' => env('CACHE_COMPILED_VIEWS') ?
+                  Shpasser\GaeSupportL5\Storage\Optimizer::COMPILED_VIEWS_PATH :
+                  storage_path('framework/views'),
+EOT;
 
         $modified = preg_replace($expression, $replacement, $contents);
 
         if ($contents !== $modified)
         {
-            $this->myCommand->info('Set the mail driver in "config/mail.php".');
+            $this->myCommand->info('Replaced the \'compiled\' path in "config/view.php".');
         }
 
         return $modified;
@@ -586,9 +586,6 @@ skip_files:
         - ^(.*/)?\.DS_Store$
 
 env_variables:
-        GAE_CACHE_SERVICES_FILE: false
-        GAE_CACHE_CONFIG_FILE: false
-        GAE_CACHE_ROUTES_FILE: false
         GAE_SKIP_GCS_INIT: false
 EOT;
         file_put_contents($filePath, $contents);
