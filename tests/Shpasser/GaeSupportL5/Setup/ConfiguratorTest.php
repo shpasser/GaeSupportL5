@@ -99,13 +99,6 @@ class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
         $this->assertFileEquals($config_view_php, $expected);
     }
 
-    public function testConfigMailModification()
-    {
-        $config_mail_php = __DIR__.'/playground/config/mail.php';
-        $expected        = __DIR__.'/playground/config/mail.php_expected_result';
-        $this->assertFileEquals($config_mail_php, $expected);
-    }
-
     public function testConfigQueueModification()
     {
         $config_queue_php = __DIR__.'/playground/config/queue.php';
