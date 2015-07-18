@@ -57,7 +57,10 @@ final class CacheFs {
         try
         {
             // initialize the connection to memcached
-            self::cache();
+            if (is_null(self::cache()))
+            {
+                return false;
+            }
             // register the wrapper
             stream_wrapper_register(self::PROTOCOL, 'Shpasser\GaeSupportL5\Storage\CacheFs');
             self::$registered = true;
@@ -78,7 +81,7 @@ final class CacheFs {
      */
     private static function cache()
     {
-        if (is_null(self::$memcached))
+        if (is_null(self::$memcached) && class_exists('Memcached'))
         {
             $servers = [['host' => '127.0.0.1', 'port' => 11211, 'weight' => 100]];
 

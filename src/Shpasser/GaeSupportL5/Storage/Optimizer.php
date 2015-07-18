@@ -36,6 +36,11 @@ class Optimizer {
      */
     protected $cachedFiles;
 
+    /**
+     * @var boolean
+     */
+    protected $initialized;
+
 
     /**
      * Constructs an instance of GaeCacheManager.
@@ -45,30 +50,31 @@ class Optimizer {
      */
     function __construct($basePath, $runningInConsole)
     {
+        $this->basePath = $basePath;
         $this->runningInConsole = $runningInConsole;
+        $this->initialized = false;
+        $this->cachedFiles = array();
 
         $this->configPath   = self::CONFIG_PATH.'/config.php';
         $this->routesPath   = self::CONFIG_PATH.'/routes.php';
         $this->servicesPath = self::CONFIG_PATH.'/services.json';
-
-        $this->basePath = $basePath;
-        $this->cachedFiles = array();
     }
+
 
     /**
      * Bootstraps the Optimizer.
      *
-     * @return [type] [description]
+     * @return boolean 'true' if successful, otherwise 'false'.
      */
     public function bootstrap()
     {
-        if ($this->initializeFs())
+        if ( ! $this->runningInConsole && $this->initializeFs())
         {
             $this->buildFsTree();
-            return true;
+            $this->initialized = true;
         }
 
-        return false;
+        return $this->initialized;
     }
 
 
@@ -79,7 +85,7 @@ class Optimizer {
      */
     public function getCachedConfigPath()
     {
-        if ( ! $this->runningInConsole && env('CACHE_CONFIG_FILE'))
+        if ($this->initialized && env('CACHE_CONFIG_FILE'))
         {
             $this->cacheFile($this->basePath.'/bootstrap/cache/config.php', $this->configPath);
             return $this->configPath;
@@ -96,7 +102,7 @@ class Optimizer {
      */
     public function getCachedRoutesPath()
     {
-        if ( ! $this->runningInConsole && env('CACHE_ROUTES_FILE'))
+        if ($this->initialized && env('CACHE_ROUTES_FILE'))
         {
             $this->cacheFile($this->basePath.'/bootstrap/cache/routes.php', $this->routesPath);
             return $this->routesPath;
@@ -113,7 +119,7 @@ class Optimizer {
      */
     public function getCachedServicesPath()
     {
-        return  ( ! $this->runningInConsole && env('CACHE_SERVICES_FILE')) ? $this->servicesPath : false;
+        return  ($this->initialized && env('CACHE_SERVICES_FILE')) ? $this->servicesPath : false;
     }
 
     /**
