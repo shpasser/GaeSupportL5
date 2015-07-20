@@ -487,6 +487,37 @@ EOT
         return $modified;
     }
 
+
+    /**
+     * Processor function. Pre-processes windows paths.
+     *
+     * @param string $contents the 'bootstrap/cache/config.php' file contents.
+     *
+     * @return string the modified file contents.
+     */
+    protected function preprocessWindowsPaths($contents)
+    {
+        $expression = "/'([A-Za-z]:)?((\\\\|\/)[^\\/:*?\"\'<>|\r\n]*)*'/";
+
+        $paths = array();
+        preg_match_all($expression, $contents, $paths);
+
+        $modified = $contents;
+        foreach ($paths[0] as $path)
+        {
+            $normalizedPath = str_replace('\\\\', '/', $path);
+            $modified = str_replace($path, $normalizedPath, $modified);
+        }
+
+        if ($contents !== $modified)
+        {
+            $this->myCommand->info('Preprocessed windows paths in "bootstrap/cache/config.php".');
+        }
+
+        return $modified;
+    }
+
+
     /**
      * Fixes the paths in the cached config file.
      *
@@ -498,6 +529,16 @@ EOT
         $app_path = app_path();
         $storage_path = storage_path();
         $base_path = base_path();
+        $replaceFunction = 'str_replace';
+
+        if ($this->isRunningOnWindows())
+        {
+            $contents = $this->preprocessWindowsPaths($contents);
+            $app_path     = str_replace('\\', '/', $app_path);
+            $storage_path = str_replace('\\', '/', $storage_path);
+            $base_path    = str_replace('\\', '/', $base_path);
+            $replaceFunction = 'str_ireplace';
+        }
 
         $strings = [
             "'${app_path}",
@@ -511,7 +552,8 @@ EOT
             "base_path().'"
 		];
 
-        $modified = str_replace($strings, $replacements, $contents);
+
+        $modified = $replaceFunction($strings, $replacements, $contents);
 
         if ($contents !== $modified)
         {
@@ -630,6 +672,20 @@ EOT;
         file_put_contents($filePath, $contents);
 
         $this->myCommand->info('Generated the "php.ini" file.');
+    }
+
+    /**
+     * Determines whether the app is running on windows.
+     * @return boolean 'true' if running on Windows,  otherwise 'false'.
+     */
+    protected function isRunningOnWindows()
+    {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+        {
+            return true;
+        }
+
+        return false;
     }
 
     /**
