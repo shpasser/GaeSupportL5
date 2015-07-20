@@ -243,7 +243,8 @@ The suggested handler secures the route using GAE URL security options. For more
 
 #### Usage
 
-Enter URL http://your-app-id.appspot.com/artisan in your browser.
+Enter URL http://your-app-id.appspot.com/artisan in your browser and use the displayed form to submit `artisan` commands.
+Since GAE's filesystem is read-only the commands will not be able to write to it. For this reason migrations have to be prepared on local development environment before the deployment takes place. Also, because the console is not really interactive all the commands are executed in non-interactive mode(by appending the `-n` option).
 
 
 ## Deployment
