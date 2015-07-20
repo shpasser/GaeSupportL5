@@ -3,6 +3,7 @@
 use Illuminate\Console\Command;
 use Artisan;
 use Shpasser\GaeSupportL5\Storage\Optimizer;
+use Dotenv;
 
 /**
  * Class Configurator
@@ -64,7 +65,9 @@ class Configurator {
 
         if ($cacheConfig)
         {
-            app()->loadEnvironmentFrom($env_production_file);
+            Dotenv::makeMutable();
+            Dotenv::load(dirname($env_production_file),
+                         basename($env_production_file));
 
             $result = Artisan::call('config:cache', array());
             if ($result === 0)
@@ -551,7 +554,6 @@ EOT
             "storage_path().'",
             "base_path().'"
 		];
-
 
         $modified = $replaceFunction($strings, $replacements, $contents);
 
