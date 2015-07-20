@@ -208,7 +208,45 @@ do so, remove the following line from `.env.production` file:
 FILESYSTEM = gae
 ```
 
-## Deploy
+### Artisan Console for GAE
+
+To support `artisan` commands while running on GAE the package provides `Artisan Console for GAE`.
+The console is implemented as a separate service and not enabled by default for security reasons. To use the console securely `/artisan` route has to be protected.
+
+#### Installation
+
+Include the service provider within `config/app.php`.
+
+```php
+'providers' => [
+    Shpasser\GaeSupportL5\GaeArtisanConsoleServiceProvider::class
+];
+```
+
+Add `/artisan` URL handler to `app.yaml` file.
+
+```yaml
+handlers:
+
+        - url: /artisan
+          script: public/index.php
+          login: admin
+          secure: always
+
+        - url: /.*
+          script: public/index.php
+
+```
+
+`/artisan` URL handler has to appear before the last one (`url: /.*`), otherwise it will be ignored by GAE.
+The suggested handler secures the route using GAE URL security options. For more information see https://cloud.google.com/appengine/docs/php/config/appconfig#PHP_app_yaml_Secure_URLs.
+
+#### Usage
+
+Enter URL http://your-app-id.appspot.com/artisan in your browser.
+
+
+## Deployment
 
 Backup the existing `.env` file if needed and rename the generated `.env.production` to `.env`
 before deploying your app.
