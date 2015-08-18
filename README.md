@@ -102,7 +102,7 @@ function()
 
 This route will be used by the GAE queue to push the jobs. Please notice that the route
 and the GAE Queue Connection 'url' parameter point to the same URL.
-For more information on the matter please see http://laravel.com/docs/master/queues#push-queues.
+For more information on the matter please see http://laravel.com/docs/5.0/queues#push-queues.
 
 ### Cache, Session and Log
 
@@ -190,7 +190,9 @@ In order to use `config.php` first generate it using the `--cache-config` option
 `php artisan gae:setup` command. `routes.php` has to be generated using
 `php artisan route:cache` command.
 
-Cache related options are supported on GAE and/or in local environment as long as `memcached` service is installed and running.
+Cache related options are:
+- supported on GAE and/or in local environment as long as `memcached` service is present,
+- disabled while executing `php artisan gae:setup` command.
 
 Additionally the initialization of GSC bucket can be skipped to boost the performance.
 In order to do so, set the following option in the `app.yaml` file:
@@ -244,8 +246,7 @@ The suggested handler secures the route using GAE URL security options. For more
 #### Usage
 
 Enter URL http://your-app-id.appspot.com/artisan in your browser and use the displayed form to submit `artisan` commands.
-Since GAE's filesystem is read-only the commands will not be able to write to it. For this reason migrations have to be prepared on local development environment before the deployment takes place. Also, because the console is not really interactive all the commands are executed in non-interactive mode(by appending the `-n` option).
-
+Since GAE's filesystem is read-only the commands will not be able to perform write / update operations on it. For the same reason migrations have to be prepared on local development environment before the deployment takes place. Since the console is not really interactive all the commands are executed in non-interactive mode(by automatic appending of `-n` option).
 
 ## Deployment
 
