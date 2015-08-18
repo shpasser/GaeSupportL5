@@ -9,6 +9,7 @@ use League\Flysystem\Config;
  *
  * The class overrides the existing methods in order to:
  *
+ * - remove exclusive locks(not supported by GAE) while writing files,
  * - 'ensureDirectory()' replace a call to 'reapath()' functions with
  * a call to 'gae_realpath()' function, which is
  * compatible with GCS buckets,
@@ -20,6 +21,14 @@ use League\Flysystem\Config;
  * @package Shpasser\GaeSupportL5\Filesystem
  */
 class GaeAdapter extends Local {
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($root)
+    {
+        parent::__construct($root, 0, self::DISALLOW_LINKS);
+    }
 
     /**
      * {@inheritdoc}
