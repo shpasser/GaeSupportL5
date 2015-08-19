@@ -10,6 +10,7 @@ use League\Flysystem\Config;
  * The class overrides the existing methods in order to:
  *
  * - remove exclusive locks(not supported by GAE) while writing files,
+ *
  * - 'ensureDirectory()' replace a call to 'reapath()' functions with
  * a call to 'gae_realpath()' function, which is
  * compatible with GCS buckets,
@@ -17,6 +18,13 @@ use League\Flysystem\Config;
  * - 'writeStream()' replace 'fopen()' mode from 'w+', which is not supported
  * on GCS buckets and replaces it with 'w', as for the
  * specific function both 'w+' and 'w' should work properly.
+ *
+ * - 'applyPathPrefix()' remove trailing directory separators, which prevent
+ * listing of disk root directory on GAE. Originally Flysystem Local adapter
+ * ends up with path 'gs://bucket/storage/app//' for disk root, then 'is_dir()'
+ * is used to check that it is a folder path. The check fails due to the trailing
+ * slash which is not supported by GCS and an empty directory listing is returned.
+ * In order to make the check pass the path has to be 'gs://bucket/storage/app/'.
  *
  * @package Shpasser\GaeSupportL5\Filesystem
  */
@@ -67,6 +75,16 @@ class GaeAdapter extends Local {
         }
 
         return compact('path', 'visibility');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function applyPathPrefix($path)
+    {
+        $prefixedPath = parent::applyPathPrefix($path);
+
+        return rtrim($prefixedPath, DIRECTORY_SEPARATOR);
     }
 
 }
