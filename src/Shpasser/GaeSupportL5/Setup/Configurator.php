@@ -132,11 +132,11 @@ class Configurator {
         if (( ! is_null($dbSocket)) && ( ! is_null($dbName)))
         {
             $env['DB_CONNECTION']       = 'cloudsql';
-            $env['CLOUD_SQL_SOCKET']    = $dbSocket;
-            $env['CLOUD_SQL_HOST']      = '';
-            $env['CLOUD_SQL_DATABASE']  = $dbName;
-            $env['CLOUD_SQL_USERNAME']  = 'root';
-            $env['CLOUD_SQL_PASSWORD']  = '';
+            $env['DB_SOCKET']    = $dbSocket;
+            $env['DB_HOST']      = '';
+            $env['DB_DATABASE']  = $dbName;
+            $env['DB_USERNAME']  = 'root';
+            $env['DB_PASSWORD']  = '';
         }
 
         $this->addOptimizerOptions($env);
@@ -187,11 +187,11 @@ class Configurator {
         if (( ! is_null($dbHost)) && ( ! is_null($dbName)))
         {
             $env['DB_CONNECTION']       = 'cloudsql';
-            $env['CLOUD_SQL_SOCKET']    = '';
-            $env['CLOUD_SQL_HOST']      = $dbHost;
-            $env['CLOUD_SQL_DATABASE']  = $dbName;
-            $env['CLOUD_SQL_USERNAME']  = 'root';
-            $env['CLOUD_SQL_PASSWORD']  = 'password';
+            $env['DB_SOCKET']    = '';
+            $env['DB_HOST']      = $dbHost;
+            $env['DB_DATABASE']  = $dbName;
+            $env['DB_USERNAME']  = 'root';
+            $env['DB_PASSWORD']  = 'password';
         }
 
         $this->addOptimizerOptions($env);
@@ -426,11 +426,11 @@ EOT;
 
         'cloudsql' => [
             'driver'      => 'mysql',
-            'unix_socket' => env('CLOUD_SQL_SOCKET'),
-            'host'        => env('CLOUD_SQL_HOST'),
-            'database'    => env('CLOUD_SQL_DATABASE'),
-            'username'    => env('CLOUD_SQL_USERNAME'),
-            'password'    => env('CLOUD_SQL_PASSWORD'),
+            'unix_socket' => env('DB_SOCKET'),
+            'host'        => env('DB_HOST'),
+            'database'    => env('DB_DATABASE'),
+            'username'    => env('DB_USERNAME'),
+            'password'    => env('DB_PASSWORD'),
             'charset'     => 'utf8',
             'collation'   => 'utf8_unicode_ci',
             'prefix'      => '',
