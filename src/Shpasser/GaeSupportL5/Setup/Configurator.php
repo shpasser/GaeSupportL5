@@ -131,7 +131,7 @@ class Configurator {
 
         if (( ! is_null($dbSocket)) && ( ! is_null($dbName)))
         {
-            $env['DB_CONNECTION']       = 'cloudsql';
+            $env['DB_CONNECTION']= 'cloudsql';
             $env['DB_SOCKET']    = $dbSocket;
             $env['DB_HOST']      = '';
             $env['DB_DATABASE']  = $dbName;
