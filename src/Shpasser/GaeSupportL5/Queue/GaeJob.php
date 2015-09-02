@@ -11,7 +11,7 @@ class GaeJob extends Job  implements JobContract {
 	 *
 	 * @var \Shpasser\GaeSupportL5\Queue\GaeQueue
 	 */
-	protected $qaeQueue;
+	protected $gaeQueue;
 
 	/**
 	 * The Gae message instance.
