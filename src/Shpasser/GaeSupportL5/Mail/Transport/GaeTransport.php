@@ -61,7 +61,7 @@ class GaeTransport implements Swift_Transport
             $bcc = implode(', ', array_keys((array) $message->getBcc()));
             $replyto = '';
 
-            foreach ($message->getReplyTo() as $address => $name) {
+            foreach ((array) $message->getReplyTo() as $address => $name) {
                 $replyto = $address;
                 break;
             }
