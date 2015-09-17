@@ -1,8 +1,9 @@
-<?php namespace Shpasser\GaeSupportL5\Setup;
+<?php
 
+namespace Shpasser\GaeSupportL5\Setup;
 
-class IniHelper implements \ArrayAccess {
-
+class IniHelper implements \ArrayAccess
+{
     /**
      * INI configuration array
      * @var array
@@ -49,15 +50,11 @@ class IniHelper implements \ArrayAccess {
     {
         $iniString = "";
 
-        foreach ($array as $key => $value)
-        {
-            if (is_array($value))
-            {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
                 $iniString .= "[{$key}]".PHP_EOL;
                 $iniString .= $this->generateIniString($value);
-            }
-            else
-            {
+            } else {
                 $iniString .= "{$key}={$value}".PHP_EOL;
             }
         }
@@ -73,7 +70,8 @@ class IniHelper implements \ArrayAccess {
      * @access public
      * @abstracting ArrayAccess
      */
-    public function offsetSet($offset, $value) {
+    public function offsetSet($offset, $value)
+    {
         if (is_null($offset)) {
             $this->config[] = $value;
         } else {
@@ -89,7 +87,8 @@ class IniHelper implements \ArrayAccess {
      * @return boolean
      * @abstracting ArrayAccess
      */
-    public function offsetExists($offset) {
+    public function offsetExists($offset)
+    {
         return isset($this->config[$offset]);
     }
 
@@ -100,7 +99,8 @@ class IniHelper implements \ArrayAccess {
      * @access public
      * @abstracting ArrayAccess
      */
-    public function offsetUnset($offset) {
+    public function offsetUnset($offset)
+    {
         unset($this->config[$offset]);
     }
 
@@ -112,8 +112,8 @@ class IniHelper implements \ArrayAccess {
      * @return mixed
      * @abstracting ArrayAccess
      */
-    public function offsetGet($offset) {
+    public function offsetGet($offset)
+    {
         return isset($this->config[$offset]) ? $this->config[$offset] : null;
     }
-
 }

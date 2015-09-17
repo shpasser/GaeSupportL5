@@ -196,7 +196,7 @@ Cache related options are:
 
 Additionally the initialization of GSC bucket can be skipped to boost the performance.
 In order to do so, set the following option in the `app.yaml` file:
-```yml
+```yaml
 env_variables:
         GAE_SKIP_GCS_INIT: true
 ```

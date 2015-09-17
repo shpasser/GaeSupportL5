@@ -1,4 +1,6 @@
-<?php namespace Shpasser\GaeSupportL5\Setup;
+<?php
+
+namespace Shpasser\GaeSupportL5\Setup;
 
 use ZipArchive;
 
@@ -7,8 +9,8 @@ use ZipArchive;
  *
  * @package Shpasser\GaeSupport\Setup
  */
-class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
-
+class ConfiguratorTest extends \PHPUnit_Framework_TestCase
+{
     /**
      * Helper function.
      *
@@ -19,9 +21,8 @@ class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
      */
     protected static function delTree($dir)
     {
-        $files = array_diff(scandir($dir), array('.','..'));
-        foreach ($files as $file)
-        {
+        $files = array_diff(scandir($dir), array('.', '..'));
+        foreach ($files as $file) {
             (is_dir("$dir/$file")) ? self::delTree("$dir/$file") : unlink("$dir/$file");
         }
 
@@ -126,5 +127,4 @@ class ConfiguratorTest extends \PHPUnit_Framework_TestCase {
         $expected = __DIR__.'/playground/php.ini_expected_result';
         $this->assertFileEquals($php_ini, $expected);
     }
-
 }

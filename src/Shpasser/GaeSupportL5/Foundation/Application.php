@@ -1,13 +1,14 @@
-<?php namespace Shpasser\GaeSupportL5\Foundation;
+<?php
+
+namespace Shpasser\GaeSupportL5\Foundation;
 
 use Illuminate\Foundation\Application as IlluminateApplication;
 use Shpasser\GaeSupportL5\Storage\Optimizer;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
 
-
-class Application extends IlluminateApplication {
-
+class Application extends IlluminateApplication
+{
     /**
      * AppIdentityService class instantiation is done using the class
      * name string so we can first check if the class exists and only then
@@ -55,8 +56,7 @@ class Application extends IlluminateApplication {
 
         $this->detectGae();
 
-        if ($this->isRunningOnGae())
-        {
+        if ($this->isRunningOnGae()) {
             $this->replaceDefaultSymfonyLineDumpers();
         }
 
@@ -101,13 +101,11 @@ class Application extends IlluminateApplication {
     {
         $path = $this->optimizer->getCachedServicesPath();
 
-        if ($path)
-        {
+        if ($path) {
             return $path;
         }
 
-        if ($this->isRunningOnGae())
-        {
+        if ($this->isRunningOnGae()) {
             return $this->storagePath().'/framework/services.json';
         }
 
@@ -120,8 +118,7 @@ class Application extends IlluminateApplication {
      */
     protected function detectGae()
     {
-        if ( ! class_exists(self::GAE_ID_SERVICE))
-        {
+        if (! class_exists(self::GAE_ID_SERVICE)) {
             $this->runningOnGae = false;
             $this->appId = null;
 
@@ -146,10 +143,8 @@ class Application extends IlluminateApplication {
     {
         HtmlDumper::$defaultOutput =
         CliDumper::$defaultOutput =
-            function($line, $depth, $indentPad)
-            {
-                if (-1 !== $depth)
-                {
+            function ($line, $depth, $indentPad) {
+                if (-1 !== $depth) {
                     echo str_repeat($indentPad, $depth).$line.PHP_EOL;
                 }
             };
@@ -182,10 +177,8 @@ class Application extends IlluminateApplication {
      */
     public function storagePath()
     {
-        if ($this->runningOnGae)
-        {
-            if ( ! is_null($this->gaeBucketPath))
-            {
+        if ($this->runningOnGae) {
+            if (! is_null($this->gaeBucketPath)) {
                 return $this->gaeBucketPath;
             }
 
@@ -193,17 +186,14 @@ class Application extends IlluminateApplication {
             // Get the first bucket in the list.
             $bucket = current(explode(', ', $buckets));
 
-            if ($bucket)
-            {
+            if ($bucket) {
                 $this->gaeBucketPath = "gs://{$bucket}/storage";
 
-                if (env('GAE_SKIP_GCS_INIT'))
-                {
+                if (env('GAE_SKIP_GCS_INIT')) {
                     return $this->gaeBucketPath;
                 }
 
-                if ( ! file_exists($this->gaeBucketPath))
-                {
+                if (! file_exists($this->gaeBucketPath)) {
                     mkdir($this->gaeBucketPath);
                     mkdir($this->gaeBucketPath.'/app');
                     mkdir($this->gaeBucketPath.'/framework');
@@ -216,5 +206,4 @@ class Application extends IlluminateApplication {
 
         return parent::storagePath();
     }
-
 }

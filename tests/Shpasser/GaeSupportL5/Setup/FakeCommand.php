@@ -1,9 +1,11 @@
-<?php namespace Shpasser\GaeSupportL5\Setup;
+<?php
+
+namespace Shpasser\GaeSupportL5\Setup;
 
 use Illuminate\Console\Command;
 
-class FakeCommand extends Command {
-
+class FakeCommand extends Command
+{
     protected $name = 'fake';
     protected $description = 'Fake command for testing purposes.';
 
@@ -21,5 +23,4 @@ class FakeCommand extends Command {
     {
         return;
     }
-
 }

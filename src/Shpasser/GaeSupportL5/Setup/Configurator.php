@@ -1,4 +1,6 @@
-<?php namespace Shpasser\GaeSupportL5\Setup;
+<?php
+
+namespace Shpasser\GaeSupportL5\Setup;
 
 use Illuminate\Console\Command;
 use Artisan;
@@ -11,8 +13,8 @@ use Dotenv;
  * @package Shpasser\GaeSupportL5\Setup
  */
 
-class Configurator {
-
+class Configurator
+{
     protected $myCommand;
 
     /**
@@ -63,21 +65,18 @@ class Configurator {
         $this->processFile($config_database_php, ['addCloudSqlConfig']);
         $this->processFile($config_filesystems_php, ['addGaeDisk']);
 
-        if ($cacheConfig)
-        {
+        if ($cacheConfig) {
             Dotenv::makeMutable();
             Dotenv::load(dirname($env_production_file),
                          basename($env_production_file));
 
             $result = Artisan::call('config:cache', array());
-            if ($result === 0)
-            {
+            if ($result === 0) {
                 $this->processFile($cached_config_php, ['fixCachedConfig']);
             }
         }
 
-        if ($generateConfig)
-        {
+        if ($generateConfig) {
             $app_yaml   = app_path().'/../app.yaml';
             $publicPath = app_path().'/../public';
             $php_ini    = app_path().'/../php.ini';
@@ -97,20 +96,17 @@ class Configurator {
      */
     protected function createEnvProductionFile($env_file, $env_production_file, $dbSocket, $dbName)
     {
-        if (!file_exists($env_file))
-        {
+        if (!file_exists($env_file)) {
             $this->myCommand->error('Cannot find ".env" file to import the existing options.');
             return;
         }
 
-        if (file_exists($env_production_file))
-        {
+        if (file_exists($env_production_file)) {
             $overwrite = $this->myCommand->confirm(
                 'Overwrite the existing ".env.production" file?', false
             );
 
-            if ( ! $overwrite)
-            {
+            if (! $overwrite) {
                 return;
             }
         }
@@ -129,8 +125,7 @@ class Configurator {
         $env['LOG_HANDLER']  = 'syslog';
         $env['FILESYSTEM'] = 'gae';
 
-        if (( ! is_null($dbSocket)) && ( ! is_null($dbName)))
-        {
+        if ((! is_null($dbSocket)) && (! is_null($dbName))) {
             $env['DB_CONNECTION']= 'cloudsql';
             $env['DB_SOCKET']    = $dbSocket;
             $env['DB_HOST']      = '';
@@ -157,20 +152,17 @@ class Configurator {
      */
     protected function createEnvLocalFile($env_file, $env_local_file, $dbHost, $dbName)
     {
-        if (!file_exists($env_file))
-        {
+        if (!file_exists($env_file)) {
             $this->myCommand->error('Cannot find ".env" file to import the existing options.');
             return;
         }
 
-        if (file_exists($env_local_file))
-        {
+        if (file_exists($env_local_file)) {
             $overwrite = $this->myCommand->confirm(
                 'Overwrite the existing ".env.local" file?', false
             );
 
-            if ( ! $overwrite)
-            {
+            if (! $overwrite) {
                 return;
             }
         }
@@ -184,8 +176,7 @@ class Configurator {
         $env['CACHE_DRIVER']   = 'file';
         $env['SESSION_DRIVER'] = 'file';
 
-        if (( ! is_null($dbHost)) && ( ! is_null($dbName)))
-        {
+        if ((! is_null($dbHost)) && (! is_null($dbName))) {
             $env['DB_CONNECTION']       = 'cloudsql';
             $env['DB_SOCKET']    = '';
             $env['DB_HOST']      = $dbHost;
@@ -240,13 +231,11 @@ class Configurator {
 
         $processed = $contents;
 
-        foreach ($processors as $processor)
-        {
+        foreach ($processors as $processor) {
             $processed = $this->$processor($processed);
         }
 
-        if ($processed === $contents)
-        {
+        if ($processed === $contents) {
             return;
         }
 
@@ -270,8 +259,7 @@ class Configurator {
             'Shpasser\GaeSupportL5\Foundation\Application',
             $contents);
 
-        if ($contents !== $modified)
-        {
+        if ($contents !== $modified) {
             $this->myCommand->info('Replaced the application class in "bootstrap/app.php".');
         }
 
@@ -293,8 +281,8 @@ class Configurator {
             'Illuminate\Queue\QueueServiceProvider'
         ];
 
-		// Replacement to:
-		//  - additionally support Google App Engine Queues,
+        // Replacement to:
+        //  - additionally support Google App Engine Queues,
         //  - additionally support Google App Engine Mail.
         $replacements = [
             'Shpasser\GaeSupportL5\Mail\MailServiceProvider',
@@ -303,8 +291,7 @@ class Configurator {
 
         $modified = str_replace($strings, $replacements, $contents);
 
-        if ($contents !== $modified)
-        {
+        if ($contents !== $modified) {
             $this->myCommand->info('Replaced the service providers in "config/app.php".');
         }
 
@@ -327,8 +314,7 @@ class Configurator {
 
         $modified = preg_replace($expression, $replacement, $contents);
 
-        if ($contents !== $modified)
-        {
+        if ($contents !== $modified) {
             $this->myCommand->info('Set the log handler in "config/app.php".');
         }
 
@@ -354,8 +340,7 @@ EOT;
 
         $modified = preg_replace($expression, $replacement, $contents);
 
-        if ($contents !== $modified)
-        {
+        if ($contents !== $modified) {
             $this->myCommand->info('Replaced the \'compiled\' path in "config/view.php".');
         }
 
@@ -371,8 +356,7 @@ EOT;
      */
     protected function addQueueConfig($contents)
     {
-        if (str_contains($contents, "'gae'"))
-        {
+        if (str_contains($contents, "'gae'")) {
             return $contents;
         }
 
@@ -391,8 +375,7 @@ EOT;
 EOT;
         $modified = preg_replace($expression, $replacement, $contents);
 
-        if ($contents !== $modified)
-        {
+        if ($contents !== $modified) {
             $this->myCommand->info('Added queue driver configuration in "config/queue.php".');
         }
 
@@ -409,8 +392,7 @@ EOT;
      */
     protected function addCloudSqlConfig($contents)
     {
-        if (str_contains($contents, "'cloudsql'"))
-        {
+        if (str_contains($contents, "'cloudsql'")) {
             return $contents;
         }
 
@@ -441,8 +423,7 @@ EOT
 
         $modified = preg_replace($expressions, $replacements, $contents);
 
-        if ($contents !== $modified)
-        {
+        if ($contents !== $modified) {
             $this->myCommand->info('Added Cloud SQL driver configuration in "config/database.php".');
         }
 
@@ -458,8 +439,7 @@ EOT
      */
     protected function addGaeDisk($contents)
     {
-        if (str_contains($contents, "'gae'"))
-        {
+        if (str_contains($contents, "'gae'")) {
             return $contents;
         }
 
@@ -482,8 +462,7 @@ EOT
 
         $modified = preg_replace($expressions, $replacements, $contents);
 
-        if ($contents !== $modified)
-        {
+        if ($contents !== $modified) {
             $this->myCommand->info('Added GAE filesystem driver configuration in "config/filesystems.php".');
         }
 
@@ -506,14 +485,12 @@ EOT
         preg_match_all($expression, $contents, $paths);
 
         $modified = $contents;
-        foreach ($paths[0] as $path)
-        {
+        foreach ($paths[0] as $path) {
             $normalizedPath = str_replace('\\\\', '/', $path);
             $modified = str_replace($path, $normalizedPath, $modified);
         }
 
-        if ($contents !== $modified)
-        {
+        if ($contents !== $modified) {
             $this->myCommand->info('Preprocessed windows paths in "bootstrap/cache/config.php".');
         }
 
@@ -534,8 +511,7 @@ EOT
         $base_path = base_path();
         $replaceFunction = 'str_replace';
 
-        if ($this->isRunningOnWindows())
-        {
+        if ($this->isRunningOnWindows()) {
             $contents = $this->preprocessWindowsPaths($contents);
             $app_path     = str_replace('\\', '/', $app_path);
             $storage_path = str_replace('\\', '/', $storage_path);
@@ -553,12 +529,11 @@ EOT
             "app_path().'",
             "storage_path().'",
             "base_path().'"
-		];
+        ];
 
         $modified = $replaceFunction($strings, $replacements, $contents);
 
-        if ($contents !== $modified)
-        {
+        if ($contents !== $modified) {
             $this->myCommand->info('Generated "bootstrap/cache/config.php" for GAE deployment.');
             $this->myCommand->comment('* To use "bootstrap/cache/config.php" locally please regenerate it.');
         }
@@ -575,23 +550,19 @@ EOT
      */
     protected function generateAppYaml($appId, $filePath, $publicPath)
     {
-        if (file_exists($filePath))
-        {
+        if (file_exists($filePath)) {
             $overwrite = $this->myCommand->confirm(
                 'Overwrite the existing "app.yaml" file?', false
             );
 
-            if ( ! $overwrite)
-            {
+            if (! $overwrite) {
                 return;
             }
         }
 
         $pathMappings = '';
-        foreach (new \DirectoryIterator($publicPath) as $fileInfo)
-        {
-            if($fileInfo->isDot() || ! $fileInfo->isDir())
-            {
+        foreach (new \DirectoryIterator($publicPath) as $fileInfo) {
+            if ($fileInfo->isDot() || ! $fileInfo->isDir()) {
                 continue;
             }
 
@@ -646,21 +617,18 @@ EOT;
      */
     protected function generatePhpIni($appId, $bucketId, $filePath)
     {
-        if (file_exists($filePath))
-        {
+        if (file_exists($filePath)) {
             $overwrite = $this->myCommand->confirm(
                 'Overwrite the existing "php.ini" file?', false
             );
 
-            if ( ! $overwrite)
-            {
+            if (! $overwrite) {
                 return;
             }
         }
 
         $storageBucket = "{$appId}.appspot.com";
-        if ($bucketId !== null)
-        {
+        if ($bucketId !== null) {
             $storageBucket = $bucketId;
         }
 
@@ -682,8 +650,7 @@ EOT;
      */
     protected function isRunningOnWindows()
     {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
-        {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             return true;
         }
 
@@ -701,8 +668,7 @@ EOT;
         $sourcePath = $filePath;
         $backupPath = $filePath.'.bak';
 
-        if (file_exists($backupPath))
-        {
+        if (file_exists($backupPath)) {
             $date = new \DateTime();
             $backupPath = "{$filePath}{$date->getTimestamp()}.bak";
         }
@@ -722,17 +688,14 @@ EOT;
      */
     protected function restoreFile($filePath, $backupPath, $clean = true)
     {
-        if (file_exists($backupPath))
-        {
+        if (file_exists($backupPath)) {
             copy($backupPath, $filePath);
 
-            if ($clean)
-            {
+            if ($clean) {
                 unlink($backupPath);
             }
         }
 
         return $backupPath;
     }
-
 }

@@ -1,4 +1,6 @@
-<?php namespace Shpasser\GaeSupportL5\Storage;
+<?php
+
+namespace Shpasser\GaeSupportL5\Storage;
 
 use Dotenv;
 use InvalidArgumentException;
@@ -6,8 +8,8 @@ use InvalidArgumentException;
 /**
  * Initializes caching of Laravel 5.1 configuration files on GAE.
  */
-class Optimizer {
-
+class Optimizer
+{
     const CONFIG_PATH = 'cachefs://bootstrap/cache';
     const COMPILED_VIEWS_PATH = 'cachefs://framework/views';
 
@@ -48,7 +50,7 @@ class Optimizer {
      * @param string $basePath Laravel base path.
      * @param boolean $runningInConsole 'true' if running in console.
      */
-    function __construct($basePath, $runningInConsole)
+    public function __construct($basePath, $runningInConsole)
     {
         $this->basePath = $basePath;
         $this->runningInConsole = $runningInConsole;
@@ -68,8 +70,7 @@ class Optimizer {
      */
     public function bootstrap()
     {
-        if ( ! $this->runningInConsole && $this->initializeFs())
-        {
+        if (! $this->runningInConsole && $this->initializeFs()) {
             $this->buildFsTree();
             $this->initialized = true;
         }
@@ -85,8 +86,7 @@ class Optimizer {
      */
     public function getCachedConfigPath()
     {
-        if ($this->initialized && env('CACHE_CONFIG_FILE'))
-        {
+        if ($this->initialized && env('CACHE_CONFIG_FILE')) {
             $this->cacheFile($this->basePath.'/bootstrap/cache/config.php', $this->configPath);
             return $this->configPath;
         }
@@ -102,8 +102,7 @@ class Optimizer {
      */
     public function getCachedRoutesPath()
     {
-        if ($this->initialized && env('CACHE_ROUTES_FILE'))
-        {
+        if ($this->initialized && env('CACHE_ROUTES_FILE')) {
             $this->cacheFile($this->basePath.'/bootstrap/cache/routes.php', $this->routesPath);
             return $this->routesPath;
         }
@@ -147,18 +146,15 @@ class Optimizer {
      */
     protected function cacheFile($path, $cachefsPath)
     {
-        if (array_key_exists($path, $this->cachedFiles))
-        {
+        if (array_key_exists($path, $this->cachedFiles)) {
             return;
         }
 
-        if (file_exists($path))
-        {
+        if (file_exists($path)) {
             $contents = file_get_contents($path);
             file_put_contents($cachefsPath, $contents);
 
             $this->cachedFiles[$path] = $cachefsPath;
         }
     }
-
 }

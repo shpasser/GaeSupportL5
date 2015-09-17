@@ -1,9 +1,11 @@
-<?php namespace Shpasser\GaeSupportL5;
+<?php
+
+namespace Shpasser\GaeSupportL5;
 
 use Illuminate\Support\ServiceProvider;
 
-class GaeArtisanConsoleServiceProvider extends ServiceProvider {
-
+class GaeArtisanConsoleServiceProvider extends ServiceProvider
+{
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -20,8 +22,7 @@ class GaeArtisanConsoleServiceProvider extends ServiceProvider {
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'gae-support-l5');
 
-        if ( ! $this->app->routesAreCached())
-        {
+        if (! $this->app->routesAreCached()) {
             require __DIR__.'/Http/routes.php';
         }
     }
@@ -45,5 +46,4 @@ class GaeArtisanConsoleServiceProvider extends ServiceProvider {
     {
         return array('gae-artisan-console');
     }
-
 }

@@ -1,8 +1,9 @@
-<?php namespace Shpasser\GaeSupportL5\Filesystem;
+<?php
+
+namespace Shpasser\GaeSupportL5\Filesystem;
 
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Config;
-
 
 /**
  * Class GaeAdapter
@@ -12,12 +13,11 @@ use League\Flysystem\Config;
  * - remove exclusive locks(not supported by GAE) while writing files,
  *
  * - 'ensureDirectory()' replace a call to 'reapath()' functions with
- * a call to 'gae_realpath()' function, which is
- * compatible with GCS buckets,
+ * a call to 'gae_realpath()' function, which is compatible with GCS buckets,
  *
  * - 'writeStream()' replace 'fopen()' mode from 'w+', which is not supported
- * on GCS buckets and replaces it with 'w', as for the
- * specific function both 'w+' and 'w' should work properly.
+ * on GCS buckets and replaces it with 'w', as for the specific function
+ * both 'w+' and 'w' should work properly.
  *
  * - 'applyPathPrefix()' remove trailing directory separators, which prevent
  * listing of disk root directory on GAE. Originally Flysystem Local adapter
@@ -28,8 +28,8 @@ use League\Flysystem\Config;
  *
  * @package Shpasser\GaeSupportL5\Filesystem
  */
-class GaeAdapter extends Local {
-
+class GaeAdapter extends Local
+{
     /**
      * {@inheritdoc}
      */
@@ -86,5 +86,4 @@ class GaeAdapter extends Local {
 
         return rtrim($prefixedPath, DIRECTORY_SEPARATOR);
     }
-
 }
