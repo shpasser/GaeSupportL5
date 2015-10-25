@@ -586,6 +586,10 @@ handlers:
         - url: /favicon\.ico
           static_files: public/favicon.ico
           upload: public/favicon\.ico
+
+        - url: /build
+          static_dir: public/build
+          application_readable: true
 {$pathMappings}
         - url: /.*
           script: public/index.php
