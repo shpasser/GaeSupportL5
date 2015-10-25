@@ -567,6 +567,13 @@ EOT
             }
 
             $dirName = $fileInfo->getFilename();
+
+            // Elixir's 'build' directory
+            // is added anyway -> skip it
+            if ($dirName === "build") {
+                continue;
+            }
+
             $pathMappings .= PHP_EOL.
 <<<EOT
         - url: /{$dirName}
