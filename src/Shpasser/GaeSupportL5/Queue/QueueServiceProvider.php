@@ -19,7 +19,7 @@ class QueueServiceProvider extends LaravelQueueServiceProvider
     }
 
     /**
-     * Register the Gae queue connector.
+     * Register the GAE queue connector.
      *
      * @param  \Illuminate\Queue\QueueManager  $manager
      * @return void
@@ -32,4 +32,19 @@ class QueueServiceProvider extends LaravelQueueServiceProvider
             return new GaeConnector($app['encrypter'], $app['request']);
         });
     }
+
+    /**
+     * Register the GAE compatible queue listener.
+     *
+     * @return void
+     */
+    protected function registerListener()
+    {
+        $this->registerListenCommand();
+
+        $this->app->singleton('queue.listener', function ($app) {
+            return new Listener($app->basePath());
+        });
+    }
+
 }
