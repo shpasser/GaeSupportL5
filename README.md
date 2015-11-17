@@ -254,3 +254,7 @@ Backup the existing `.env` file if needed and rename the generated `.env.product
 before deploying your app.
 
 Download and install GAE SDK for PHP and deploy your app.
+
+## Known Issues
+
+As of now Laravel scheduled commands are not supported while running on GAE.
