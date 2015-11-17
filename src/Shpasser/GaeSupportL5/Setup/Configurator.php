@@ -56,10 +56,7 @@ class Configurator
         $this->createEnvProductionFile($env_file, $env_production_file, $dbSocket, $dbName);
         $this->createEnvLocalFile($env_file, $env_local_file, $dbHost, $dbName);
         $this->processFile($bootstrap_app_php, ['replaceAppClass']);
-        $this->processFile($config_app_php, [
-            'replaceLaravelServiceProviders',
-            'setLogHandler'
-        ]);
+        $this->processFile($config_app_php, ['replaceLaravelServiceProviders']);
         $this->processFile($config_view_php, ['replaceCompiledPath']);
         $this->processFile($config_queue_php, ['addQueueConfig']);
         $this->processFile($config_database_php, ['addCloudSqlConfig']);
@@ -116,22 +113,22 @@ class Configurator
 
         $env['APP_ENV']   = 'production';
         $env['APP_DEBUG'] = 'false';
+        $env['APP_LOG']   = 'syslog';
 
         $env['CACHE_DRIVER']   = 'memcached';
         $env['SESSION_DRIVER'] = 'memcached';
 
         $env['MAIL_DRIVER']  = 'gae';
         $env['QUEUE_DRIVER'] = 'gae';
-        $env['LOG_HANDLER']  = 'syslog';
-        $env['FILESYSTEM'] = 'gae';
+        $env['FILESYSTEM']   = 'gae';
 
         if ((! is_null($dbSocket)) && (! is_null($dbName))) {
-            $env['DB_CONNECTION']= 'cloudsql';
-            $env['DB_SOCKET']    = $dbSocket;
-            $env['DB_HOST']      = '';
-            $env['DB_DATABASE']  = $dbName;
-            $env['DB_USERNAME']  = 'root';
-            $env['DB_PASSWORD']  = '';
+            $env['DB_CONNECTION'] = 'cloudsql';
+            $env['DB_SOCKET']     = $dbSocket;
+            $env['DB_HOST']       = '';
+            $env['DB_DATABASE']   = $dbName;
+            $env['DB_USERNAME']   = 'root';
+            $env['DB_PASSWORD']   = '';
         }
 
         $this->addOptimizerOptions($env);
@@ -140,7 +137,6 @@ class Configurator
 
         $this->myCommand->info('Created the ".env.production" file.');
     }
-
 
     /**
      * Creates a '.env.local' file based on the existing '.env' file.
@@ -177,12 +173,12 @@ class Configurator
         $env['SESSION_DRIVER'] = 'file';
 
         if ((! is_null($dbHost)) && (! is_null($dbName))) {
-            $env['DB_CONNECTION']       = 'cloudsql';
-            $env['DB_SOCKET']    = '';
-            $env['DB_HOST']      = $dbHost;
-            $env['DB_DATABASE']  = $dbName;
-            $env['DB_USERNAME']  = 'root';
-            $env['DB_PASSWORD']  = 'password';
+            $env['DB_CONNECTION'] = 'cloudsql';
+            $env['DB_SOCKET']     = '';
+            $env['DB_HOST']       = $dbHost;
+            $env['DB_DATABASE']   = $dbName;
+            $env['DB_USERNAME']   = 'root';
+            $env['DB_PASSWORD']   = 'password';
         }
 
         $this->addOptimizerOptions($env);
@@ -192,7 +188,6 @@ class Configurator
         $this->myCommand->info('Created the ".env.local" file.');
     }
 
-
     /**
      * Adds 'Optimizer' options to an environment object.
      *
@@ -201,12 +196,11 @@ class Configurator
      */
     protected function addOptimizerOptions(IniHelper $env)
     {
-        $env['CACHE_SERVICES_FILE'] = 'false';
-        $env['CACHE_CONFIG_FILE'] = 'false';
-        $env['CACHE_ROUTES_FILE'] = 'false';
+        $env['CACHE_SERVICES_FILE']  = 'false';
+        $env['CACHE_CONFIG_FILE']    = 'false';
+        $env['CACHE_ROUTES_FILE']    = 'false';
         $env['CACHE_COMPILED_VIEWS'] = 'false';
     }
-
 
     /**
      * Processes a given file with given processors.
@@ -298,29 +292,6 @@ class Configurator
         return $modified;
     }
 
-
-    /**
-     * Processor function. Sets the syslog log handler
-     * for a Laravel GAE app.
-     *
-     * @param string $contents the 'config/app.php' file contents.
-     *
-     * @return string the modified file contents.
-     */
-    protected function setLogHandler($contents)
-    {
-        $expression = "/'log'.*=>[^env\(]*'\b.+\b'/";
-        $replacement = "'log' => env('LOG_HANDLER', 'daily')";
-
-        $modified = preg_replace($expression, $replacement, $contents);
-
-        if ($contents !== $modified) {
-            $this->myCommand->info('Set the log handler in "config/app.php".');
-        }
-
-        return $modified;
-    }
-
     /**
      * Processor function. Replaces 'compiled' path with GAE
      * compatible one when running on GAE.
@@ -381,7 +352,6 @@ EOT;
 
         return $modified;
     }
-
 
     /**
      * Adds the Cloud SQL configuration to the 'config/database.php'
@@ -469,7 +439,6 @@ EOT
         return $modified;
     }
 
-
     /**
      * Processor function. Pre-processes windows paths.
      *
@@ -496,7 +465,6 @@ EOT
 
         return $modified;
     }
-
 
     /**
      * Fixes the paths in the cached config file.
