@@ -56,7 +56,10 @@ class Configurator
         $this->createEnvProductionFile($env_file, $env_production_file, $dbSocket, $dbName);
         $this->createEnvLocalFile($env_file, $env_local_file, $dbHost, $dbName);
         $this->processFile($bootstrap_app_php, ['replaceAppClass']);
-        $this->processFile($config_app_php, ['replaceLaravelServiceProviders']);
+        $this->processFile($config_app_php, [
+           'replaceLaravelServiceProviders',
+           'setLogHandler'
+        ]);
         $this->processFile($config_view_php, ['replaceCompiledPath']);
         $this->processFile($config_queue_php, ['addQueueConfig']);
         $this->processFile($config_database_php, ['addCloudSqlConfig']);
@@ -287,6 +290,29 @@ class Configurator
 
         if ($contents !== $modified) {
             $this->myCommand->info('Replaced the service providers in "config/app.php".');
+        }
+
+        return $modified;
+    }
+
+    /**
+     * Processor function. Sets the syslog log handler
+     * for a Laravel GAE app.
+     *
+     * @param string $contents the 'config/app.php' file contents.
+     *
+     * @return string the modified file contents.
+     */
+    protected function setLogHandler($contents)
+    {
+        $expression = "/'log'.*=>((?!env\('APP_LOG').)*'\b.+?\b'\)?/";
+        $replacement = "'log' => env('APP_LOG', 'single')";
+
+        $modified = preg_replace($expression, $replacement, $contents);
+
+        if ($contents !== $modified)
+        {
+            $this->myCommand->info('Set the log handler in "config/app.php".');
         }
 
         return $modified;
