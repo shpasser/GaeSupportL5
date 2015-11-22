@@ -258,3 +258,5 @@ Download and install GAE SDK for PHP and deploy your app.
 ## Known Issues
 
 As of now Laravel scheduled commands are not supported while running on GAE.
+In order to use `Artisan Console for GAE` the application class `app/Console/Kernel` 
+has be edited and any of the commands scheduled using its `schedule()` function should be removed.
