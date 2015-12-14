@@ -46,7 +46,7 @@ php artisan gae:setup --config --cache-config --bucket="your-bucket-id" --db-soc
 
 Arguments and Options:
 <pre>
-php artisan gae:setup [options] [--] <app-id>
+php artisan gae:setup [options] [--] app-id
 
 Arguments:
   app-id                     GAE application ID.
