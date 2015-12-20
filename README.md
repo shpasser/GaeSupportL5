@@ -122,7 +122,8 @@ function()
 ```
 
 This route will be used by the GAE queue to push the jobs. Please notice that the route
-and the GAE Queue Connection 'url' parameter point to the same URL.
+and the GAE Queue Connection 'url' parameter point to the same URL. Since the requests
+submitted using the route are issued by GAE itself it cannot be CSRF-protected.
 For more information on the matter please see http://laravel.com/docs/5.0/queues#push-queues.
 
 ### Cache, Session and Log
