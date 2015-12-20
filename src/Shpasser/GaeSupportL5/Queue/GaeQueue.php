@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Queue\Queue;
 use Illuminate\Contracts\Queue\Queue as QueueContract;
 use google\appengine\api\taskqueue\PushTask;
+use Log;
 
 class GaeQueue extends Queue implements QueueContract
 {
@@ -156,10 +157,15 @@ class GaeQueue extends Queue implements QueueContract
             // Ignore for security reasons!
             // So if we are being hacked
             // the hacker would think it went OK.
+            Log::warning('Marshalling Queue Request: Invalid job.');
             return new Response('OK');
         }
 
-        $this->createPushedGaeJob($job)->fire();
+        if (isset($job->id)) {
+            $this->createPushedGaeJob($job)->fire();
+        } else {
+            Log::warning('Marshalling Queue Request: No GAE header supplied.');
+        }
 
         return new Response('OK');
     }
