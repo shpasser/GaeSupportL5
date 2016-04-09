@@ -5,8 +5,8 @@ use \Shpasser\GaeSupportL5\Http\Controllers\ArtisanConsoleController;
 /**
  * Maintenance routes.
  */
-get('artisan',  array('as' => 'artisan',
+Route::get('artisan',  array('as' => 'artisan',
     'uses' => ArtisanConsoleController::class.'@show'));
 
-post('artisan', array('as' => 'artisan',
-     'uses' => ArtisanConsoleController::class.'@execute'));
+Route::post('artisan', array('as' => 'artisan',
+    'uses' => ArtisanConsoleController::class.'@execute'));

@@ -5,7 +5,7 @@ namespace Shpasser\GaeSupportL5\Http\Controllers;
 use Illuminate\Routing\Controller;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Input;
+use Illuminate\Http\Request;
 use Artisan;
 
 /**
@@ -28,11 +28,13 @@ class ArtisanConsoleController extends Controller
 
     /**
      * Executes a command submitted from Artisan Console page.
+     *
+     * @param  Request $request Laravel HTTP request object.
      * @return mixed view containing the Artisan Console.
      */
-    public function execute()
+    public function execute(Request $request)
     {
-        $command = Input::get('command');
+        $command = $request->input('command');
 
         if ($command === '') {
             $command = 'list';
