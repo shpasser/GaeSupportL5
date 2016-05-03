@@ -110,7 +110,7 @@ class Configurator
             }
         }
 
-        $env = new IniHelper;
+        $env = new EnvHelper;
         $env->read($env_file);
 
         $env['APP_ENV']   = 'production';
@@ -165,7 +165,7 @@ class Configurator
             }
         }
 
-        $env = new IniHelper;
+        $env = new EnvHelper;
         $env->read($env_file);
 
         $env['APP_ENV']   = 'local';
@@ -193,10 +193,10 @@ class Configurator
     /**
      * Adds 'Optimizer' options to an environment object.
      *
-     * @param \Shpasser\GaeSupportL5\Setup\IniHelper $env
+     * @param \Shpasser\GaeSupportL5\Setup\EnvHelper $env
      * the environment object to modify.
      */
-    protected function addOptimizerOptions(IniHelper $env)
+    protected function addOptimizerOptions(EnvHelper $env)
     {
         $env['CACHE_SERVICES_FILE']  = 'false';
         $env['CACHE_CONFIG_FILE']    = 'false';
