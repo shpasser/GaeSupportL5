@@ -9,11 +9,11 @@
 Google App Engine(GAE) Support package for Laravel 5.1.
 
 Currently supported features:
-- Generation of general configuration files,
-- Mail service provider,
-- Queue service provider,
-- Database connection,
-- Filesystem.
+- Generation of general configuration files
+- Mail service provider
+- Queue service provider
+- Database connection
+- Filesystem
 
 For Lumen see https://github.com/shpasser/GaeSupportLumen.
 
