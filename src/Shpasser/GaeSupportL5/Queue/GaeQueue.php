@@ -79,7 +79,7 @@ class GaeQueue extends Queue implements QueueContract
     public function pushRaw($payload, $queue = null, array $options = array())
     {
         if ($this->shouldEncrypt) {
-            $payload = $this->crypt->encrypt($payload);
+            $payload = $this->encrypter->encrypt($payload);
         }
 
         $task = new PushTask($this->url,
@@ -220,7 +220,7 @@ class GaeQueue extends Queue implements QueueContract
      */
     protected function parseJobBody($body)
     {
-        return $this->shouldEncrypt ? $this->crypt->decrypt($body) : $body;
+        return $this->shouldEncrypt ? $this->encrypter->decrypt($body) : $body;
     }
 
     /**
