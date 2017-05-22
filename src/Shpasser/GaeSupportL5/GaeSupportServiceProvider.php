@@ -36,7 +36,7 @@ class GaeSupportServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app['gae.setup'] = $this->app->share(function ($app) {
+        $this->app->singleton('gae.setup', function ($app) {
             return new SetupCommand;
         });
 
