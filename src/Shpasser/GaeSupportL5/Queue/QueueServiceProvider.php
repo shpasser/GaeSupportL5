@@ -33,18 +33,4 @@ class QueueServiceProvider extends LaravelQueueServiceProvider
         });
     }
 
-    /**
-     * Register the GAE compatible queue listener.
-     *
-     * @return void
-     */
-    protected function registerListener()
-    {
-        $this->registerListenCommand();
-
-        $this->app->singleton('queue.listener', function ($app) {
-            return new Listener($app->basePath());
-        });
-    }
-
 }
