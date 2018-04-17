@@ -35,6 +35,17 @@ class SetupCommand extends Command
      *
      * @return mixed
      */
+    public function handle()
+    {
+        $this->fire();
+    }
+
+    /**
+     * Execute the console command.
+     * For backward compatibility.
+     *
+     * @return mixed
+     */
     public function fire()
     {
         $dbSocket = $this->option('db-socket');
